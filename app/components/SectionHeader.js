@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: configs.LETTER_SIZE * 0.7,
-    color: '#9eacda',
+    color: '#ffffff',
   },
 });
 
