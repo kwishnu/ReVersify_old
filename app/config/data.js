@@ -193,7 +193,7 @@ module.exports = [
         product_id: '',
 		bg_color: '#055105',
 		puzzles:[
-            'ish~pu|bl|^|ab|le:Like a good book**ener|giz|es:Gives vitality**embe|ll|^:Make \'better\' by adding extra detail**styl|^|ly:With an eye toward fashion**stan|za:Section of a poem or song**adm|on|^|ing:Warning or reprimanding someone firmly**mal|ad|ro|it:Ineffective or bungling'
+            `In the beginning God created the heavens and the earth. Now the earth was formless and empty, darkness was over the surface of the deep, and the Spirit of God was hovering over the waters`
         ]
 	},
 	{
