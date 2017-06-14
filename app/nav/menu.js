@@ -23,7 +23,7 @@ module.exports = class Menu extends Component {
         };
     }
     formatData(data) {
-        const headings = 'FragMental*Puzzle Store*Discount Combo Packs*Social Media*About FragMental'.split('*');
+        const headings = 'ReVersify*Collections Store*Books Store*Social Media*About ReVersify'.split('*');
         const keys = 'toPuzzles*store*combos*social*about'.split('*');
         const dataBlob = {};
         const sectionIds = [];
