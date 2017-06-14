@@ -149,11 +149,13 @@ class Home extends Component{
     }
     componentDidMount() {
 //        Orientation.lockToPortrait();
+        BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
+        AppState.addEventListener('change', this.handleAppStateChange);
         this.setState({isLoading: false})
     }
     componentWillUnmount(){
-//        BackAndroid.removeEventListener('hardwareBackPress', this.handleHardwareBackButton);
-//        AppState.removeEventListener('change', this.handleAppStateChange);
+        BackAndroid.removeEventListener('hardwareBackPress', this.handleHardwareBackButton);
+        AppState.removeEventListener('change', this.handleAppStateChange);
     }
     handleHardwareBackButton() {
         if (this.state.isOpen) {
@@ -167,28 +169,28 @@ class Home extends Component{
     }
     handleAppStateChange=(appState)=>{
         if(appState == 'active'){
-            var timeNow = moment().valueOf();
-            AsyncStorage.getItem(KEY_Time).then((storedTime) => {
-                var sT = JSON.parse(storedTime);
-                var diff = (timeNow - sT)/1000;
-                if(diff>7200){
-                    try {
-                        AsyncStorage.setItem(KEY_Time, JSON.stringify(timeNow));
-                    } catch (error) {
-                        window.alert('AsyncStorage error: ' + error.message);
-                    }
-                    this.props.navigator.replace({
-                        id: 'splash',
-                        passProps: {motive: 'initialize'}
-                    });
-                }else{
-                    try {
-                        AsyncStorage.setItem(KEY_Time, JSON.stringify(timeNow));
-                    } catch (error) {
-                        window.alert('AsyncStorage error: ' + error.message);
-                    }
-                }
-            });
+//            var timeNow = moment().valueOf();
+//            AsyncStorage.getItem(KEY_Time).then((storedTime) => {
+//                var sT = JSON.parse(storedTime);
+//                var diff = (timeNow - sT)/1000;
+//                if(diff>7200){
+//                    try {
+//                        AsyncStorage.setItem(KEY_Time, JSON.stringify(timeNow));
+//                    } catch (error) {
+//                        window.alert('AsyncStorage error: ' + error.message);
+//                    }
+//                    this.props.navigator.replace({
+//                        id: 'splash',
+//                        passProps: {motive: 'initialize'}
+//                    });
+//                }else{
+//                    try {
+//                        AsyncStorage.setItem(KEY_Time, JSON.stringify(timeNow));
+//                    } catch (error) {
+//                        window.alert('AsyncStorage error: ' + error.message);
+//                    }
+//                }
+//            });
         }
     }
     toggle() {
