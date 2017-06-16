@@ -76,11 +76,11 @@ module.exports = class Settings extends Component {
             <View style={about_styles.container}>
                 <View style={ about_styles.header }>
                     <Button style={{left: height*.02}} onPress={ () => this.goSomewhere() }>
-                        <Image source={ require('../images/arrow_back.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
+                        <Image source={ require('../images/arrowback.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                     </Button>
                     <Text style={styles.header_text} >About ReVersify</Text>
                     <Button style={{right: height*.02}}>
-                        <Image source={ require('../images/no_image.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
+                        <Image source={ require('../images/noimage.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                     </Button>
                 </View>
                 <View style={ about_styles.about_container }>
