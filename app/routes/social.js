@@ -70,7 +70,7 @@ module.exports = class Social extends Component {
     }
 
     render() {
-        const imageSource = (this.props.which == 'FB')?require('../images/FB_logo.png') : require('../images/Twitter_logo.png');
+        const imageSource = (this.props.which == 'FB')?require('../images/FBlogo.png') : require('../images/twitterlogo.png');
         const text1 = (this.props.which == 'FB')?'\'Like\' us on Facebook so you can follow ':'Follow us on Twitter to keep up on ';
         const text2 = 'ReVersify News: learn of new ReVersify verse collections and other games we release!';
         const text = text1 + text2;
@@ -78,12 +78,12 @@ module.exports = class Social extends Component {
                 <View style={[social_styles.container, {borderColor: this.props.color}]}>
                     <View style={ [social_styles.header, {backgroundColor: this.props.color}] }>
                         <Button style={{left: height*.02}} onPress={ () => this.handleHardwareBackButton() }>
-                            <Image source={ require('../images/arrow_back.png') } style={ { width: normalize(height*.07), height: normalize(height*.07) } } />
+                            <Image source={ require('../images/arrowback.png') } style={ { width: normalize(height*.07), height: normalize(height*.07) } } />
                         </Button>
                         <Text style={styles.header_text} >{this.props.title}
                         </Text>
                         <Button style={{right: height*.02}}>
-                            <Image source={ require('../images/no_image.png') } style={ { width: normalize(height*.07), height: normalize(height*.07) } } />
+                            <Image source={ require('../images/noimage.png') } style={ { width: normalize(height*.07), height: normalize(height*.07) } } />
                         </Button>
                     </View>
                     <View style={ social_styles.image_container }>

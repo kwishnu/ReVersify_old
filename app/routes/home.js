@@ -204,7 +204,7 @@ class Home extends Component{
     updateMenuState(isOpen) {
         this.setState({ isOpen: isOpen });
         if (isOpen) {
-            this.setState({menuImage: require('../images/arrow_back.png')});
+            this.setState({menuImage: require('../images/arrowback.png')});
             BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
         } else {
             AsyncStorage.getItem(KEY_show_score).then((showScore) => {
@@ -468,7 +468,7 @@ class Home extends Component{
                             </Button>
                             <Image source={ require('../images/logo2.png') } style={ { width: normalize(height * .25), height: normalize(height * .07) } } />
                             <Button style={{right: height*.02}}>
-                                <Image source={ require('../images/no_image.png') } style={ { width: normalize(height/15), height: normalize(height/15) } } />
+                                <Image source={ require('../images/noimage.png') } style={ { width: normalize(height/15), height: normalize(height/15) } } />
                             </Button>
                             <View style={ container_styles.total_score }>
                                 <Text style={[container_styles.total_text, {opacity: this.state.total_opacity}]}>Solved:</Text>
