@@ -270,7 +270,7 @@ class SplashScreen extends Component {
     render() {
 		return(
 			<View style={ splash_styles.container }>
-				<Image style={{ width: normalize(height/4), height: normalize(height/4) }} source={require('../images/icon_round.png')} />
+				<Image style={{ width: normalize(height/4), height: normalize(height/12) }} source={require('../images/logo.png')} />
 				<ActivityIndicator style={splash_styles.spinner} animating={true} size={'large'}/>
 			</View>
 		)
