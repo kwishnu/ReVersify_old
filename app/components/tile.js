@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import {
-  StyleSheet,
-  Text,
-  View,
-  PanResponder,
-  Animated,
-  Easing,
-  Alert,
+    StyleSheet,
+    Text,
+    View,
+    PanResponder,
+    Animated,
+    Easing,
+    Alert,
 } from 'react-native';
 import configs from '../config/configs';
 import { normalize, normalizeFont }  from '../config/pixelRatio';
@@ -15,6 +15,7 @@ const {width, height} = require('Dimensions').get('window');
 reverse = (s) => {
     return s.split("").reverse().join("");
 }
+
 
 
 class Tile extends Component {
@@ -34,8 +35,8 @@ class Tile extends Component {
     this._panResponder = PanResponder.create({
       onMoveShouldSetResponderCapture: () => true,
       onMoveShouldSetPanResponderCapture: () => true,
-      onStartShouldSetPanResponder: () => setTimeout(() => {
-        if (this.state.pan.y._value == 0){
+      onStartShouldSetPanResponder: (e, gesture) => setTimeout(() => {
+        if (gesture.moveX == 0 && gesture.moveY == 0){
             this.flip.setValue(0);
             let str = reverse(this.state.text);
             this.setState({text: str});
@@ -47,21 +48,18 @@ class Tile extends Component {
             ).start();
         }
       }, 400),
-
       onPanResponderGrant: (e, gestureState) => {
         this.setState({zIndex: 1});
         this.state.pan.setOffset({x: this.state.pan.x._value, y: this.state.pan.y._value});
         this.state.pan.setValue({x: 0, y: 0});
         Animated.spring(
-          this.state.scale,
-          { toValue: 1.1, friction: 3 }
+            this.state.scale,
+            { toValue: 1.1, friction: 3 }
         ).start();
       },
-
       onPanResponderMove: Animated.event([
         null, {dx: this.state.pan.x, dy: this.state.pan.y},
       ]),
-
       onPanResponderRelease: (e, gesture) => {
         this.setState({zIndex: 0});
         this.state.pan.flattenOffset();
@@ -69,9 +67,7 @@ class Tile extends Component {
           this.state.scale,
           { toValue: 1, friction: 3 }
         ).start();
-
         let dropzone = this.inDropZone(gesture);
-
         if (dropzone && this.state.text == this.props.nextFrag) {
           this.props.onDrop(this.state.text);
             this.setState({opacity: 0});
@@ -95,45 +91,51 @@ class Tile extends Component {
       },
     });
   }
+    shakeText(sent) {
+        if (this.state.text == sent || reverse(this.state.text) == sent){
+            Animated.spring(
+                this.state.scale,
+                { toValue: 1.2, friction: 3, tension: 20 }
+            ).start(()=>{
 
-  inDropZone(gesture) {
-    var isDropZone = false;
-      if (gesture.moveY < 250 && gesture.moveY != 0) {
-        isDropZone = true;
-      }
-    return isDropZone;
-  }
+            Animated.spring(
+                this.state.scale,
+                { toValue: 1, friction: 3 }
+            ).start()
+        });
+        }
+    }
+    inDropZone(gesture) {
+        var isDropZone = false;
+            if (gesture.moveY < 250 && gesture.moveY != 0) {
+            isDropZone = true;
+            }
+        return isDropZone;
+    }
+    setDropZoneValues(event) {
+        this.props.setDropZoneValues(event.nativeEvent.layout);
+        this.layout = event.nativeEvent.layout;
+    }
 
-  setDropZoneValues(event) {
-    this.props.setDropZoneValues(event.nativeEvent.layout);
-    this.layout = event.nativeEvent.layout;
-  }
-//    handleDrop() {
-//    console.log('1');
-//        if (this.props.onDrop) {
-//    console.log('2');
-//            this.props.onDrop(this.state.text);
-//        }
-//    }
 
-  render() {
-  const rotateY = this.flip.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg']
-  })
-   let { pan, scale } = this.state;
-   let [translateX, translateY] = [pan.x, pan.y];
-   let imageStyle = {transform: [{translateX}, {translateY}, {rotateY}, {scale}]};
-    return (
-    <View onStartShouldSetResponder={() => {console.log('uhh');}}>
-        <Animated.View
-          style={[imageStyle, tile_styles.draggable, {zIndex: this.state.zIndex, opacity: this.state.opacity}]}
-          {...this._panResponder.panHandlers}>
-            <Text style={tile_styles.text}>{this.state.text}</Text>
-        </Animated.View>
-    </View>
-    );
-  }
+    render() {
+        const rotateY = this.flip.interpolate({
+            inputRange: [0, 1],
+            outputRange: ['0deg', '360deg']
+        })
+        let { pan, scale } = this.state;
+        let [translateX, translateY] = [pan.x, pan.y];
+        let imageStyle = {transform: [{translateX}, {translateY}, {rotateY}, {scale}]};
+        return (
+            <View onStartShouldSetResponder={() => {console.log('uhh');}}>
+                <Animated.View
+                  style={[imageStyle, tile_styles.draggable, {zIndex: this.state.zIndex, opacity: this.state.opacity}]}
+                  {...this._panResponder.panHandlers}>
+                    <Text style={tile_styles.text}>{this.state.text}</Text>
+                </Animated.View>
+            </View>
+        );
+    }
 }
 
 const tile_styles = StyleSheet.create({
