@@ -70,7 +70,7 @@ module.exports = class Social extends Component {
     }
 
     render() {
-        const imageSource = (this.props.which == 'FB')?require('../images/FBlogo.png') : require('../images/twitterlogo.png');
+        const imageSource = (this.props.which == 'FB')?require('../images/fblogo.png') : require('../images/twitterlogo.png');
         const text1 = (this.props.which == 'FB')?'\'Like\' us on Facebook so you can follow ':'Follow us on Twitter to keep up on ';
         const text2 = 'ReVersify News: learn of new ReVersify verse collections and other games we release!';
         const text = text1 + text2;
