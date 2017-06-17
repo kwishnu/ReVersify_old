@@ -11,15 +11,18 @@
     "react": "16.0.0-alpha.3",
     "react-native": "0.43.1",
     "react-native-app-intro": "^1.1.5",
+    "react-native-orientation": "git+https://github.com/yamill/react-native-orientation.git",
+    "react-native-push-notification": "^2.2.1",
     "react-native-side-menu": "^0.20.1",
-    "react-native-sortable-grid": "^2.0.0"
+    "react-native-sound": "^0.10.2"
   },
   "devDependencies": {
     "babel-jest": "20.0.3",
     "babel-preset-react-native": "1.9.2",
     "jest": "20.0.4",
-    "react-test-renderer": "16.0.0-alpha.12",
-    "react-native-meteor": "^1.0.3"
+    "react-native-meteor": "^1.0.3",
+    "react-native-orientation": "yamill/react-native-orientation",
+    "react-test-renderer": "16.0.0-alpha.12"
   },
   "jest": {
     "preset": "react-native"
