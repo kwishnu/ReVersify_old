@@ -27,7 +27,8 @@ class Tile extends Component {
       scale: new Animated.Value(1),
       text: this.props.text,
       zIndex: 0,
-      opacity: 1
+      opacity: 1,
+      useSounds: this.props.sounds
     };
   }
 
@@ -91,8 +92,9 @@ class Tile extends Component {
       },
     });
   }
-    shakeText(sent) {
+    showNextTile(sent) {
         if (this.state.text == sent || reverse(this.state.text) == sent){
+            this.setState({zIndex: 1});
             Animated.spring(
                 this.state.scale,
                 { toValue: 1.2, friction: 3, tension: 20 }
@@ -112,11 +114,10 @@ class Tile extends Component {
             }
         return isDropZone;
     }
-    setDropZoneValues(event) {
-        this.props.setDropZoneValues(event.nativeEvent.layout);
-        this.layout = event.nativeEvent.layout;
-    }
-
+//    setDropZoneValues(event) {
+//        this.props.setDropZoneValues(event.nativeEvent.layout);
+//        this.layout = event.nativeEvent.layout;
+//    }
 
     render() {
         const rotateY = this.flip.interpolate({
@@ -149,12 +150,11 @@ const tile_styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ffffff',
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: '#000000'
   },
   text: {
     fontSize: normalizeFont(configs.LETTER_SIZE*0.1),
-    fontWeight: 'bold',
     color: '#000000'
   }
 });
