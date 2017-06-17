@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { View, Image, StyleSheet, NetInfo, AsyncStorage, ActivityIndicator, StatusBar } from 'react-native';
 import Meteor from 'react-native-meteor';
 import moment from 'moment';
-//import PushNotification from 'react-native-push-notification';
+import PushNotification from 'react-native-push-notification';
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1));
@@ -52,6 +52,19 @@ class SplashScreen extends Component {
     }
     componentDidMount() {
         StatusBar.setHidden(true);
+        AsyncStorage.getItem(KEY_Notifs).then((notifHour) => {//notification hour, zero if no notifications (from Settings)
+                if (notifHour !== null) {
+                    this.setNotifications(notifHour);
+                }else{
+                    this.setState({notif_time: '7'});
+                    try {
+                        AsyncStorage.setItem(KEY_Notifs, '7');
+                    } catch (error) {
+                        window.alert('AsyncStorage error: ' + error.message);
+                    }
+                }
+//                return AsyncStorage.getItem(KEY_SeenStart);
+            })
         this.gotoScene('home', initialData)
 	}
     getData(dataArray, sNum){//retrieve server data here, sNum is offset number for daily puzzles;
@@ -249,21 +262,21 @@ class SplashScreen extends Component {
                 },
        });
     }
-    setNotifications(){
-        var time = this.state.notif_time;
+    setNotifications(time){
+//        var time = this.state.notif_time;
         if (time == '0'){return}
-        //var date = new Date(Date.now() + (parseInt(time, 10) * 1000));
+        var date = new Date(Date.now() + (10 * 1000));
         var tomorrowAM = new Date(Date.now() + (moment(tonightMidnight).add(parseInt(time, 10), 'hours').valueOf()) - nowISO);
 
-//        PushNotification.localNotificationSchedule({
-//            message: 'A new Daily Puzzle is in!',
-//            vibrate: true,
-//            soundName: 'plink.mp3',
-//            //repeatType: 'day',//can be 'time', if so use following:
-//            repeatTime: 86400000,//daily
-//            date: tomorrowAM,
-//            id: '777',
-//        });
+        PushNotification.localNotificationSchedule({
+            message: 'Your Daily Verse is here...',
+            vibrate: true,
+            soundName: 'plink.mp3',
+            //repeatType: 'day',//can be 'time', if so use following:
+            repeatTime: 86400000,//daily
+            date: tomorrowAM,
+            id: '777',
+        });
     }
 
 
