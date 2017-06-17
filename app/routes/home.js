@@ -7,7 +7,9 @@ import ContentsDialog from '../components/ContentsDialog';
 import Meteor from 'react-native-meteor';
 import configs from '../config/configs';
 import { normalize, normalizeFont }  from '../config/pixelRatio';
-function shuffleArray(array) {
+let Orientation = require('react-native-orientation');
+
+shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1));
         let temp = array[i];
@@ -16,7 +18,7 @@ function shuffleArray(array) {
     }
     return array;
 }
-function invertColor(hex, bw) {
+invertColor = (hex,bw)  => {
     if (hex.indexOf('#') == 0) {
         hex = hex.slice(1);
     }
@@ -42,7 +44,7 @@ function invertColor(hex, bw) {
     // pad each with zeros and return
     return "#" + padZero(r) + padZero(g) + padZero(b);
 }
-function shadeColor(color, percent) {
+shadeColor = (color, percent) => {
         let R = parseInt(color.substring(1,3),16);
         let G = parseInt(color.substring(3,5),16);
         let B = parseInt(color.substring(5,7),16);
@@ -61,7 +63,7 @@ function shadeColor(color, percent) {
 
         return '#'+RR+GG+BB;
 }
-function formatData(data) {
+formatData = (data) => {
         const headings = 'Daily Verses*My Verse Collections*Available Collections*Completed Collections'.split('*');
         const keys = 'daily*mypack*forsale*solved'.split('*');
         const dataBlob = {};
@@ -148,7 +150,7 @@ class Home extends Component{
         this.handleHardwareBackButton = this.handleHardwareBackButton.bind(this);
     }
     componentDidMount() {
-//        Orientation.lockToPortrait();
+        Orientation.lockToPortrait();
         BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
         AppState.addEventListener('change', this.handleAppStateChange);
         this.setState({isLoading: false})
