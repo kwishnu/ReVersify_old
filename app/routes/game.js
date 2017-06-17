@@ -2,13 +2,46 @@ import React, { Component } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, BackAndroid, AsyncStorage, Animated, ActivityIndicator, Alert, Platform, Linking, AppState } from 'react-native';
 import moment from 'moment';
 import Button from '../components/Button';
-import Tile from '../components/tile';
+import Tile from '../components/Tile';
 import DropdownMenu from '../components/DropdownMenu';
 import configs from '../config/configs';
 import { normalize, normalizeFont }  from '../config/pixelRatio';
 const deepCopy = require('../config/deepCopy.js');
 const styles = require('../styles/styles');
 const {width, height} = require('Dimensions').get('window');
+const KEY_Sound = 'soundKey';
+let Sound = require('react-native-sound');
+
+const click = new Sound('click.mp3', Sound.MAIN_BUNDLE, (error) => {
+  if (error) {
+    window.alert('Sound file not found');
+  }
+});
+const plink1 = new Sound('plink.mp3', Sound.MAIN_BUNDLE, (error) => {
+  if (error) {
+    window.alert('Sound file not found');
+  }
+});
+const plink2 = new Sound('plink.mp3', Sound.MAIN_BUNDLE, (error) => {
+  if (error) {
+    window.alert('Sound file not found');
+  }
+});
+const swish = new Sound('swish.mp3', Sound.MAIN_BUNDLE, (error) => {
+  if (error) {
+    window.alert('Sound file not found');
+  }
+});
+const blat = new Sound('block.mp3', Sound.MAIN_BUNDLE, (error) => {
+  if (error) {
+    window.alert('Sound file not found');
+  }
+});
+const fanfare = new Sound('aah.mp3', Sound.MAIN_BUNDLE, (error) => {
+  if (error) {
+    window.alert('Sound file not found');
+  }
+});
 
 cleanup = (sentence) => {
    return sentence.toLowerCase().replace(/[^a-zA-Z]+/g, "");
@@ -60,6 +93,7 @@ class Game extends Component {
         super(props);
         this.flip = new Animated.Value(0);
         this.grow = new Animated.Value(0);
+        this.opac = new Animated.Value(0);
         this.state = {
             id: 'game',
             title: this.props.title,
@@ -72,12 +106,14 @@ class Game extends Component {
             panelBorderColor: invertColor(this.props.bgColor, true),
             showingVerse: false,
             pan0: new Animated.ValueXY(), pan1: new Animated.ValueXY(),
+            rows2: true,
             rows3: true,
             rows4: true,
             rows5: true,
             rows6: true,
             rows7: true,
             rows8: true,
+            numberOfRows: 1,
             frag0: '', frag1: '', frag2: '', frag3: '', frag4: '', frag5: '', frag6: '', frag7: '', frag8: '', frag9: '', frag10: '', frag11: '', frag12: '',
             frag13: '', frag14: '', frag15: '', frag16: '', frag17: '', frag18: '',frag19: '', frag20: '', frag21: '', frag22: '', frag23: '',
             panelText: '',
@@ -97,14 +133,26 @@ class Game extends Component {
             verseKey: '',
             chapterVerse: '',
             initialLetter: '',
-            addSpace: false
+            addSpace: false,
+            showNextArrow: false,
+            showButtons: false,
+            showHintButton: true,
+            showFB: true,
+            showTwitter: true,
+            arrowImage: require('../images/arrowforward.png'),
+            scaleXY: new Animated.Value(0),
+            soundString: 'Mute Sounds',
+            useSounds: true,
+            doneWithVerse: false
         }
         this.handleHardwareBackButton = this.handleHardwareBackButton.bind(this);
     }
     componentDidMount() {
         BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
         AppState.addEventListener('change', this.handleAppStateChange);
-        let verseStr = this.props.homeData[16].puzzles[0];
+        let verseArray = this.props.homeData[16].puzzles[0].split('**');
+        let chapterVerse = verseArray[0];
+        let verseStr = verseArray[1];
         let initial = verseStr.substr(0, 1);
         verseStr = verseStr.substring(1);
         this.populateArrays(verseStr).then((values) => {
@@ -114,16 +162,31 @@ class Game extends Component {
                                 frag13: values.frag13, frag14: values.frag14, frag15: values.frag15, frag16: values.frag16, frag17: values.frag17, frag18: values.frag18, frag19: values.frag19, frag20: values.frag20, frag21: values.frag21, frag22: values.frag22, frag23: values.frag23
 
                 })
-                this.assignWordsToRows(verseStr, initial);
+                this.assignWordsToRows(verseStr);
             }
             return this.getRowBools(values.length);
         }).then((bools) => {
             if(bools){
                 this.setState({
-                    rows3: bools[0], rows4: bools[1], rows5: bools[2], rows6: bools[3], rows7: bools[4], rows8: bools[5]
+                    rows2: bools[0][0], rows3: bools[0][1], rows4: bools[0][2], rows5: bools[0][3], rows6: bools[0][4], rows7: bools[0][5], rows8: bools[0][5], numberOfRows: bools[1]
                 })
             }
-        }).then(() => { setTimeout(() => {this.setState({ isLoading: false })}, 500)})
+            return AsyncStorage.getItem(KEY_Sound);
+        }).then((sounds) => {
+            if (sounds !== null) {
+                var soundStr = (sounds == 'true')?'Mute Sounds':'Use Sounds';
+                var soundBool = (sounds == 'true')?true:false;
+                this.setState({soundString: soundStr,
+                                useSounds: soundBool
+                });
+            }else{
+                try {
+                    AsyncStorage.setItem(KEY_Sound, 'true');//
+                } catch (error) {
+                    window.alert('AsyncStorage error: ' + error.message);
+                }
+            }
+        }).then(() => {setTimeout(() => {this.setState({ isLoading: false })}, 500)})
     }
     componentWillUnmount () {
         BackAndroid.removeEventListener('hardwareBackPress', this.handleHardwareBackButton);
@@ -163,7 +226,7 @@ class Game extends Component {
 //            });
         }
     }
-    assignWordsToRows(verse, letter){
+    assignWordsToRows(verse){
         let layout = [[], [], [], [], [], [], [], []];
         let verseArray = verse.split(' ');
         let whichRow = 0;
@@ -185,25 +248,38 @@ class Game extends Component {
     getRowBools(length){
         return new Promise(
             function (resolve, reject) {
-                let showRowBools = [false, false, false, false, false, false];
+                let showRowBools = [false, false, false, false, false, false, false];
+                let rows = 1;
                 switch(length){
+                    case 6:
+                        showRowBools[0] = true;
+                        rows = 2;
+                        break;
                     case 9:
                         showRowBools[0] = true;
+                        showRowBools[1] = true;
+                        rows = 3;
                         break;
                     case 12:
                         showRowBools[0] = true;
                         showRowBools[1] = true;
+                        showRowBools[2] = true;
+                        rows = 4;
                         break;
                     case 15:
                         showRowBools[0] = true;
                         showRowBools[1] = true;
                         showRowBools[2] = true;
+                        showRowBools[3] = true;
+                        rows = 5;
                         break;
                     case 18:
                         showRowBools[0] = true;
                         showRowBools[1] = true;
                         showRowBools[2] = true;
                         showRowBools[3] = true;
+                        showRowBools[4] = true;
+                        rows = 6;
                         break;
                     case 21:
                         showRowBools[0] = true;
@@ -211,6 +287,8 @@ class Game extends Component {
                         showRowBools[2] = true;
                         showRowBools[3] = true;
                         showRowBools[4] = true;
+                        showRowBools[5] = true;
+                        rows = 7;
                         break;
                     case 24:
                         showRowBools[0] = true;
@@ -219,10 +297,12 @@ class Game extends Component {
                         showRowBools[3] = true;
                         showRowBools[4] = true;
                         showRowBools[5] = true;
+                        showRowBools[6] = true;
+                        rows = 8;
                         break;
                 }
                 if(showRowBools){
-                    resolve(showRowBools);
+                    resolve([showRowBools, rows]);
                 }else{
                     reject(false);
                 }
@@ -290,56 +370,20 @@ class Game extends Component {
                         }
                     }
                 }
-//                let showRowBools = [false, false, false, false, false, false];
-//                switch(fragments.length){
-//                    case 9:
-//                        showRowBools[0] = true;
-//                        break;
-//                    case 12:
-//                        showRowBools[0] = true;
-//                        showRowBools[1] = true;
-//                        break;
-//                    case 15:
-//                        showRowBools[0] = true;
-//                        showRowBools[1] = true;
-//                        showRowBools[2] = true;
-//                        break;
-//                    case 18:
-//                        showRowBools[0] = true;
-//                        showRowBools[1] = true;
-//                        showRowBools[2] = true;
-//                        showRowBools[3] = true;
-//                        break;
-//                    case 21:
-//                        showRowBools[0] = true;
-//                        showRowBools[1] = true;
-//                        showRowBools[2] = true;
-//                        showRowBools[3] = true;
-//                        showRowBools[4] = true;
-//                        break;
-//                    case 24:
-//                        showRowBools[0] = true;
-//                        showRowBools[1] = true;
-//                        showRowBools[2] = true;
-//                        showRowBools[3] = true;
-//                        showRowBools[4] = true;
-//                        showRowBools[5] = true;
-//                        break;
-//                }
-                let fragmentsBackup = owl.deepCopy(fragments);
-                for (let j=0; j<fragmentsBackup.length; j++){
+                let f2 = owl.deepCopy(fragments);
+                for (let j=0; j<f2.length; j++){
                     let rnd = randomBetween(1, 3);
                     if (rnd == 1){
-                        fragmentsBackup[j] = reverse(fragmentsBackup[j]);
+                        f2[j] = reverse(f2[j]);
                     }
                 }
-                fragmentsBackup = shuffleArray(fragmentsBackup);
-                let difference = 24 - fragmentsBackup.length;
+                f2 = shuffleArray(f2);
+                let difference = 24 - f2.length;
                 for (let jj=0; jj<difference; jj++){
-                    fragmentsBackup.push('');
+                    f2.push('');
                 }
-                let returnObject={ length: fragments.length, frag0: fragmentsBackup[0], frag1: fragmentsBackup[1], frag2: fragmentsBackup[2], frag3: fragmentsBackup[3], frag4: fragmentsBackup[4], frag5: fragmentsBackup[5], frag6: fragmentsBackup[6], frag7: fragmentsBackup[7], frag8: fragmentsBackup[8], frag9: fragmentsBackup[9], frag10: fragmentsBackup[10], frag11: fragmentsBackup[11], frag12: fragmentsBackup[12],
-                                   frag13: fragmentsBackup[13], frag14: fragmentsBackup[14], frag15: fragmentsBackup[15], frag16: fragmentsBackup[16], frag17: fragmentsBackup[17], frag18: fragmentsBackup[18],frag19: fragmentsBackup[19], frag20: fragmentsBackup[20], frag21: fragmentsBackup[21], frag22: fragmentsBackup[22], frag23: fragmentsBackup[23],
+                let returnObject={ length: fragments.length, frag0: f2[0], frag1: f2[1], frag2: f2[2], frag3: f2[3], frag4: f2[4], frag5: f2[5], frag6: f2[6], frag7: f2[7], frag8: f2[8], frag9: f2[9], frag10: f2[10], frag11: f2[11], frag12: f2[12],
+                                   frag13: f2[13], frag14: f2[14], frag15: f2[15], frag16: f2[16], frag17: f2[17], frag18: f2[18],frag19: f2[19], frag20: f2[20], frag21: f2[21], frag22: f2[22], frag23: f2[23],
                                    fragmentOrder: fragments, nextFrag: fragments[0]
                                  }
                 if (haveFinished){
@@ -411,7 +455,13 @@ class Game extends Component {
                     if (onWord + 1 == this.state.wordsArray[onLine].length){//at the end of a line
                         addSpace = false;
                         if (onLine == 7 || this.state.wordsArray[onLine + 1].length == 0){//finished
+                        this.setState({doneWithVerse: true});
+                            if(this.state.useSounds == true){fanfare.play();}
                             this.flipPanel();
+//                            setTimeout(() => {this.setState({ showHintButton: false, showNextArrow: true })}, 800);
+//                            setTimeout(() => {this.showButtonPanel()}, 2000);
+                            this.setState({showHintButton: false, showNextArrow: true});
+                            this.showButtonPanel();
                             break;
                         }
                         onWord = 0;
@@ -438,6 +488,10 @@ class Game extends Component {
                         line1Text: line1String, line2Text: line2String, line3Text: line3String,
                         line4Text: line4String, line5Text: line5String, line6Text: line6String, line7Text: line7String
                       })
+        setTimeout(() => {this.playDropSound()}, 50);
+    }
+    playDropSound(){
+        if(!this.state.doneWithVerse && this.state.useSounds == true){plink1.play();}
     }
     headerFooterBorder(color) {
         var darkerColor = shadeColor(color, -30);
@@ -447,31 +501,64 @@ class Game extends Component {
         var darkerColor = shadeColor(color, -70);
         return {backgroundColor: darkerColor};
     }
-    giveHint(){
-        this.a.shakeText(this.state.nextFrag);
-        this.b.shakeText(this.state.nextFrag);
-        this.c.shakeText(this.state.nextFrag);
-        this.d.shakeText(this.state.nextFrag);
-        this.e.shakeText(this.state.nextFrag);
-        this.f.shakeText(this.state.nextFrag);
-        this.g.shakeText(this.state.nextFrag);
-        this.h.shakeText(this.state.nextFrag);
-        this.i.shakeText(this.state.nextFrag);
-        this.j.shakeText(this.state.nextFrag);
-        this.k.shakeText(this.state.nextFrag);
-        this.l.shakeText(this.state.nextFrag);
-        this.m.shakeText(this.state.nextFrag);
-        this.n.shakeText(this.state.nextFrag);
-        this.o.shakeText(this.state.nextFrag);
-        this.p.shakeText(this.state.nextFrag);
-        this.q.shakeText(this.state.nextFrag);
-        this.r.shakeText(this.state.nextFrag);
-        this.s.shakeText(this.state.nextFrag);
-        this.t.shakeText(this.state.nextFrag);
-        this.u.shakeText(this.state.nextFrag);
-        this.v.shakeText(this.state.nextFrag);
-        this.w.shakeText(this.state.nextFrag);
-        this.x.shakeText(this.state.nextFrag);
+    giveHint(frag){
+        if(this.state.useSounds == true){swish.play();}
+        this.a.showNextTile(frag);
+        this.b.showNextTile(frag);
+        this.c.showNextTile(frag);
+        let rows = this.state.numberOfRows;
+        switch(true){
+            case rows > 7:
+                this.v.showNextTile(frag);
+                this.w.showNextTile(frag);
+                this.x.showNextTile(frag);
+            case rows > 6:
+                this.s.showNextTile(frag);
+                this.t.showNextTile(frag);
+                this.u.showNextTile(frag);
+            case rows > 5:
+                this.p.showNextTile(frag);
+                this.q.showNextTile(frag);
+                this.r.showNextTile(frag);
+            case rows > 4:
+                this.m.showNextTile(frag);
+                this.n.showNextTile(frag);
+                this.o.showNextTile(frag);
+            case rows > 3:
+                this.j.showNextTile(frag);
+                this.k.showNextTile(frag);
+                this.l.showNextTile(frag);
+            case rows > 2:
+                this.g.showNextTile(frag);
+                this.h.showNextTile(frag);
+                this.i.showNextTile(frag);
+            case rows > 2:
+                this.d.showNextTile(frag);
+                this.e.showNextTile(frag);
+                this.f.showNextTile(frag);
+        }
+    }
+    showButtonPanel(){
+        this.grow.setValue(0);
+        this.opac.setValue(0);
+        this.setState({showButtons: true});
+
+        Animated.parallel([
+            Animated.timing(this.opac, {
+                toValue: 1,
+                duration: 200,
+                delay: 1000
+            }),
+            Animated.timing(this.grow, {
+                    toValue: 1.1,
+                    delay: 1000
+            })
+        ]).start(()=>{
+            Animated.spring(
+                this.grow,
+                { toValue: 1, friction: 3 }
+            ).start()
+        });
     }
     flipPanel(){
         this.flip.setValue(0);
@@ -488,7 +575,7 @@ class Game extends Component {
                                        panelBgColor: pBgC,
                                        panelBorderColor: pBC,
                                        showingVerse: bool
-                           })
+            })
             Animated.timing(this.flip,
                  {
                     toValue: 1,
@@ -503,17 +590,74 @@ class Game extends Component {
                            panelBgColor: pBgC,
                            panelBorderColor: pBC,
                            showingVerse: bool
-                           })
+            })
         }
     }
-
+    showDropdown(){
+            this.setState({ shouldShowDropdown: true,});
+    }
+    onDropdownSelect(which){
+        this.setState({ shouldShowDropdown: false });
+        switch(which){
+            case 0://touch outside of dropdown, just close
+                break;
+            case 1://toggle sounds:
+                if(this.state.useSounds == true){
+                    this.setState({soundString: 'Use Sounds',
+                                    useSounds: false
+                    });
+                    try {
+                        AsyncStorage.setItem(KEY_Sound, 'false');//
+                    } catch (error) {
+                        window.alert('AsyncStorage error: ' + error.message);
+                    }
+                }else{
+                    this.setState({soundString: 'Mute Sounds',
+                                    useSounds: true
+                    });
+                    try {
+                        AsyncStorage.setItem(KEY_Sound, 'true');//
+                    } catch (error) {
+                        window.alert('AsyncStorage error: ' + error.message);
+                    }
+                }
+                break;
+            case 2://reset scene:
+                this.reset_scene();
+                break;
+            case 3://go to app intro 2nd page:
+        try {
+            this.props.navigator.push({
+                id: 'start scene',
+                passProps: {
+                    destination: 'game board',
+                    introIndex: 1,
+                    }
+            });
+        } catch(err)  {
+            window.alert(err.message)
+            return true;
+        }
+                break;
+            default:
+        }
+    }
 
   render() {
         const rotateY = this.flip.interpolate({
             inputRange: [0, 1],
             outputRange: ['0deg', '360deg']
-        })
+        });
+        const scale = this.grow.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, 1]
+        });
+//        let { scale } = this.state;
         let imageStyle = {transform: [{rotateY}]};
+        let buttonsStyle = {opacity: this.opac.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [0, 1],
+                                  }), transform: [{scale}]};
         if(this.state.isLoading == true){
             return(
                 <View style={[game_styles.loading, {backgroundColor: this.state.bgColor}]}>
@@ -521,118 +665,137 @@ class Game extends Component {
                 </View>
             );
         }else{
-            return(
-                <View style={[game_styles.container, {backgroundColor: this.state.bgColor}]}>
-                    <View style={ [game_styles.header, this.headerFooterBorder(this.state.bgColor), this.headerFooterColor(this.state.bgColor)] }>
-                        <Button style={{left: height*.02}} onPress={ () => this.closeGame() }>
-                            <Image source={ require('../images/close.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
-                        </Button>
-                        <Text style={styles.header_text} >{ this.state.title }</Text>
-                        <Button style={{right: height*.02}}>
-                            <Image source={ require('../images/noimage.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
-                        </Button>
-                    </View>
-                    <View style={game_styles.tablet}>
-                            <Image style={{ width: normalize(height/2.5), height: normalize(height/4) }} source={require('../images/biblegraphic.png')} />
-                            <Image style={game_styles.letter} source={require('../images/letters/i.png')} />
-                            <View style={game_styles.verse_container}>
-                                <View style={game_styles.first_line}>
-                                    <Text style={game_styles.verse_text} >{ this.state.line0Text }</Text>
-                                </View>
-                                <View style={game_styles.first_line}>
-                                    <Text style={game_styles.verse_text} >{ this.state.line1Text }</Text>
-                                </View>
-                                <View style={game_styles.first_line}>
-                                    <Text style={game_styles.verse_text} >{ this.state.line2Text }</Text>
-                                </View>
-                                <View style={game_styles.line}>
-                                    <Text style={game_styles.verse_text} >{ this.state.line3Text }</Text>
-                                </View>
-                                <View style={game_styles.line}>
-                                    <Text style={game_styles.verse_text} >{ this.state.line4Text }</Text>
-                                </View>
-                                <View style={game_styles.line}>
-                                    <Text style={game_styles.verse_text} >{ this.state.line5Text }</Text>
-                                </View>
-                                <View style={game_styles.line}>
-                                    <Text style={game_styles.verse_text} >{ this.state.line6Text }</Text>
-                                </View>
-                                <View style={game_styles.line}>
-                                    <Text style={game_styles.verse_text} >{ this.state.line7Text }</Text>
-                                </View>
-                                <View style={game_styles.line}></View>
-                            </View>
-                    </View>
-                    <View style={game_styles.verse_panel_container} onStartShouldSetResponder={ ()=> {this.flipPanel()}}>
-                        <Animated.View style={[imageStyle, game_styles.verse_panel, {backgroundColor: this.state.panelBgColor, borderColor: this.state.panelBorderColor}]}>
-                                    <Text style={game_styles.panel_text} >{this.state.panelText}</Text>
-                        </Animated.View>
-                    </View>
-                    <View style={game_styles.game}>
-                            <View style={game_styles.tile_row} >
-                                <Tile ref={(a) => { this.a = a; }} text={ this.state.frag0 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                <Tile ref={(b) => { this.b = b; }} text={ this.state.frag1 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                <Tile ref={(c) => { this.c = c; }} text={ this.state.frag2 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                            </View>
-                            <View style={game_styles.tile_row} >
-                                <Tile ref={(d) => { this.d = d; }} text={ this.state.frag3 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                <Tile ref={(e) => { this.e = e; }} text={ this.state.frag4 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                <Tile ref={(f) => { this.f = f; }} text={ this.state.frag5 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                            </View>
-                        { this.state.rows3 &&
-                            <View style={game_styles.tile_row} >
-                                <Tile ref={(g) => { this.g = g; }} text={ this.state.frag6 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                <Tile ref={(h) => { this.h = h; }} text={ this.state.frag7 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                <Tile ref={(i) => { this.i = i; }} text={ this.state.frag8 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                            </View>
-                        }
-                        { this.state.rows4 &&
-                                <View style={game_styles.tile_row} >
-                                    <Tile ref={(j) => { this.j = j; }} text={ this.state.frag9 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                    <Tile ref={(k) => { this.k = k; }} text={ this.state.frag10 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                    <Tile ref={(l) => { this.l = l; }} text={ this.state.frag11 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                </View>
-                        }
-                        { this.state.rows5 &&
-                                <View style={game_styles.tile_row} >
-                                    <Tile ref={(m) => { this.m = m; }} text={ this.state.frag12 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                    <Tile ref={(n) => { this.n = n; }} text={ this.state.frag13 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                    <Tile ref={(o) => { this.o = o; }} text={ this.state.frag14 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                </View>
-                        }
-                        { this.state.rows6 &&
-                                <View style={game_styles.tile_row} >
-                                    <Tile ref={(p) => { this.p = p; }} text={ this.state.frag15 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                    <Tile ref={(q) => { this.q = q; }} text={ this.state.frag16 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                    <Tile ref={(r) => { this.r = r; }} text={ this.state.frag17 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                </View>
-                        }
-                        { this.state.rows7 &&
-                                <View style={game_styles.tile_row} >
-                                    <Tile ref={(s) => { this.s = s; }} text={ this.state.frag18 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                    <Tile ref={(t) => { this.t = t; }} text={ this.state.frag19 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                    <Tile ref={(u) => { this.u = u; }} text={ this.state.frag20 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                </View>
-                        }
-                        { this.state.rows8 &&
-                                <View style={game_styles.tile_row} >
-                                    <Tile ref={(v) => { this.v = v; }} text={ this.state.frag21 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                    <Tile ref={(w) => { this.w = w; }} text={ this.state.frag22 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                    <Tile ref={(x) => { this.x = x; }} text={ this.state.frag23 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }}/>
-                                </View>
-                        }
-                    </View>
-                    <View style={[game_styles.footer, this.headerFooterBorder(this.state.bgColor), this.headerFooterColor(this.state.bgColor)]}>
-                        <View style={game_styles.hint_button} onStartShouldSetResponder={() => { this.giveHint() }}>
-                            <Text style={game_styles.hint_text}>hint</Text>
+            return (
+                <View style={{flex: 1}}>
+                    <View style={[game_styles.container, {backgroundColor: this.state.bgColor}]}>
+                        <View style={[game_styles.header, this.headerFooterBorder(this.state.bgColor), this.headerFooterColor(this.state.bgColor)]}>
+                            <Button style={{left: height*.02}} onPress={ () => this.closeGame() }>
+                                <Image source={ require('../images/close.png') } style={{ width: normalize(height*0.07), height: normalize(height*0.07) }} />
+                            </Button>
+                            <Text style={styles.header_text} >{ this.state.title }</Text>
+                            <Button style={{right: height*.02}} onPress={ () => this.showDropdown()}>
+                                <Image source={ require('../images/dropdown.png') } style={{ width: normalize(height*0.07), height: normalize(height*0.07) }} />
+                            </Button>
                         </View>
+                        <View style={game_styles.tablet}>
+                                <Image style={{ width: normalize(height/2.5), height: normalize(height/4) }} source={require('../images/biblegraphic.png')} />
+                                <Image style={game_styles.letter} source={require('../images/letters/i.png')} />
+                                <View style={game_styles.verse_container}>
+                                    <View style={game_styles.first_line}>
+                                        <Text style={game_styles.verse_text} >{ this.state.line0Text }</Text>
+                                    </View>
+                                    <View style={game_styles.first_line}>
+                                        <Text style={game_styles.verse_text} >{ this.state.line1Text }</Text>
+                                    </View>
+                                    <View style={game_styles.first_line}>
+                                        <Text style={game_styles.verse_text} >{ this.state.line2Text }</Text>
+                                    </View>
+                                    <View style={game_styles.line}>
+                                        <Text style={game_styles.verse_text} >{ this.state.line3Text }</Text>
+                                    </View>
+                                    <View style={game_styles.line}>
+                                        <Text style={game_styles.verse_text} >{ this.state.line4Text }</Text>
+                                    </View>
+                                    <View style={game_styles.line}>
+                                        <Text style={game_styles.verse_text} >{ this.state.line5Text }</Text>
+                                    </View>
+                                    <View style={game_styles.line}>
+                                        <Text style={game_styles.verse_text} >{ this.state.line6Text }</Text>
+                                    </View>
+                                    <View style={game_styles.line}>
+                                        <Text style={game_styles.verse_text} >{ this.state.line7Text }</Text>
+                                    </View>
+                                    <View style={game_styles.line}></View>
+                                </View>
+                        </View>
+                        <View style={game_styles.verse_panel_container} onStartShouldSetResponder={ ()=> {this.flipPanel()}}>
+                            <Animated.View style={[imageStyle, game_styles.verse_panel, {backgroundColor: this.state.panelBgColor, borderColor: this.state.panelBorderColor}]}>
+                                        <Text style={game_styles.panel_text} >{this.state.panelText}</Text>
+                            </Animated.View>
+                        </View>
+                        <View style={game_styles.game}>
+                                <View style={game_styles.tile_row} >
+                                    <Tile ref={(a) => { this.a = a; }} text={ this.state.frag0 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                    <Tile ref={(b) => { this.b = b; }} text={ this.state.frag1 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                    <Tile ref={(c) => { this.c = c; }} text={ this.state.frag2 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                </View>
+                            { this.state.rows2 &&
+                                <View style={game_styles.tile_row} >
+                                    <Tile ref={(d) => { this.d = d; }} text={ this.state.frag3 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                    <Tile ref={(e) => { this.e = e; }} text={ this.state.frag4 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                    <Tile ref={(f) => { this.f = f; }} text={ this.state.frag5 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                </View>
+                            }
+                            { this.state.rows3 &&
+                                <View style={game_styles.tile_row} >
+                                    <Tile ref={(g) => { this.g = g; }} text={ this.state.frag6 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                    <Tile ref={(h) => { this.h = h; }} text={ this.state.frag7 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                    <Tile ref={(i) => { this.i = i; }} text={ this.state.frag8 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                </View>
+                            }
+                            { this.state.rows4 &&
+                                    <View style={game_styles.tile_row} >
+                                        <Tile ref={(j) => { this.j = j; }} text={ this.state.frag9 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                        <Tile ref={(k) => { this.k = k; }} text={ this.state.frag10 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                        <Tile ref={(l) => { this.l = l; }} text={ this.state.frag11 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                    </View>
+                            }
+                            { this.state.rows5 &&
+                                    <View style={game_styles.tile_row} >
+                                        <Tile ref={(m) => { this.m = m; }} text={ this.state.frag12 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                        <Tile ref={(n) => { this.n = n; }} text={ this.state.frag13 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                        <Tile ref={(o) => { this.o = o; }} text={ this.state.frag14 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                    </View>
+                            }
+                            { this.state.rows6 &&
+                                    <View style={game_styles.tile_row} >
+                                        <Tile ref={(p) => { this.p = p; }} text={ this.state.frag15 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                        <Tile ref={(q) => { this.q = q; }} text={ this.state.frag16 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                        <Tile ref={(r) => { this.r = r; }} text={ this.state.frag17 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                    </View>
+                            }
+                            { this.state.rows7 &&
+                                    <View style={game_styles.tile_row} >
+                                        <Tile ref={(s) => { this.s = s; }} text={ this.state.frag18 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                        <Tile ref={(t) => { this.t = t; }} text={ this.state.frag19 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                        <Tile ref={(u) => { this.u = u; }} text={ this.state.frag20 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                    </View>
+                            }
+                            { this.state.rows8 &&
+                                    <View style={game_styles.tile_row} >
+                                        <Tile ref={(v) => { this.v = v; }} text={ this.state.frag21 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                        <Tile ref={(w) => { this.w = w; }} text={ this.state.frag22 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                        <Tile ref={(x) => { this.x = x; }} text={ this.state.frag23 } nextFrag={ this.state.nextFrag } onDrop={ (text)=>{ this.onDrop(text); }} sounds={ this.state.useSounds }/>
+                                    </View>
+                            }
+                        </View>
+                        <View style={[game_styles.footer, this.headerFooterBorder(this.state.bgColor), this.headerFooterColor(this.state.bgColor)]}>
+                        { this.state.showHintButton &&
+                            <View style={game_styles.hint_button} onStartShouldSetResponder={() => { this.giveHint(this.state.nextFrag) }}>
+                                <Text style={game_styles.hint_text}>hint</Text>
+                            </View>
+                        }
+                        </View>
+                        { this.state.showButtons &&
+                        <View style={game_styles.after_buttons}>
+                            { this.state.showFB &&
+                            <Animated.Image style={[ game_styles.button_image, buttonsStyle ]} source={require('../images/buttonfb.png')}/>
+                            }
+                            { this.state.showTwitter &&
+                            <Animated.Image style={[ game_styles.button_image, buttonsStyle ]} source={require('../images/buttontwitter.png')}/>
+                            }
+                            <Animated.Image style={[ {width: 65, height: 65, margin: 1}, buttonsStyle ]} source={require('../images/favorites.png')}/>
+                        </View>
+                        }
+                        { this.state.showNextArrow &&
+                        <View style={game_styles.next_arrow}>
+                            <Image source={this.state.arrowImage}/>
+                        </View>
+                        }
                     </View>
-                    <View style={game_styles.after_buttons}>
-                        <Animated.Image       />
-                        <Animated.Image       />
-                        <Animated.Image       />
-                    </View>
-
+                    {this.state.shouldShowDropdown &&
+                            <DropdownMenu onPress={(num)=>{ this.onDropdownSelect(num); }} item1={this.state.soundString} item2={'Reset Verse'} item3={'How to Play'}/>
+                    }
                 </View>
             );
         }
@@ -671,7 +834,7 @@ const game_styles = StyleSheet.create({
     letter: {
         position: 'absolute',
         left: normalize(height/11.5),
-        top: normalize(height/23.5),
+        top: normalize(height/26.5),
         width: normalize(height/12),
         height: normalize(height/12),
     },
@@ -679,9 +842,9 @@ const game_styles = StyleSheet.create({
         flex: 1,
         position: 'absolute',
         left: normalize(height/10.8),
-        top: normalize(height/19),
+        top: normalize(height/23),
         width: normalize(height*.4),
-        height: normalize(height/4.8),
+        height: normalize(height/4.4),
     },
     panel_icon: {
         position: 'absolute',
@@ -728,8 +891,9 @@ const game_styles = StyleSheet.create({
     },
     footer: {
         flex: 3,
+        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-end',
         width: width,
         borderTopWidth: 6,
     },
@@ -740,6 +904,7 @@ const game_styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: '#486bdd',
         borderRadius: 15,
+        marginRight: 30
     },
     hint_text: {
         fontSize: normalizeFont(configs.LETTER_SIZE*0.094),
@@ -751,12 +916,27 @@ const game_styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-around',
     },
+    next_arrow: {
+        position: 'absolute',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: width,
+        top: height*.52,
+        height: height/5.5,
+    },
     after_buttons: {
+        position: 'absolute',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        width: height/2,
-        height: height/4
+        justifyContent: 'center',
+        width: width,
+        top: height*.7,
+        height: height/4,
+    },
+    button_image: {
+        width: 60,
+        height: 60,
+        margin: 3
     }
 });
 
