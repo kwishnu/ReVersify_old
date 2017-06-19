@@ -158,6 +158,7 @@ class Game extends Component {
         this.handleHardwareBackButton = this.handleHardwareBackButton.bind(this);
     }
     componentDidMount() {
+
         BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
         AppState.addEventListener('change', this.handleAppStateChange);
         homeData = this.props.homeData;
