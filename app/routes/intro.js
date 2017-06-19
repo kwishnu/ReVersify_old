@@ -27,7 +27,7 @@ class Intro extends Component {
         this.offsetX = new Animated.Value(0);
         this.spinValue = new Animated.Value(0)
         this.state = {
-            id: 'start scene'
+            id: 'intro'
         };
         this.handleHardwareBackButton = this.handleHardwareBackButton.bind(this);
     }
