@@ -21,7 +21,7 @@ module.exports = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#ffffff',
     },
-    puzzle_text_large: {
+    verse_text_large: {
         color: '#000',
         fontSize: normalizeFont(configs.LETTER_SIZE * 0.11),
     },
