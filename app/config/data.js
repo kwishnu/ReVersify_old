@@ -2,20 +2,20 @@ module.exports = [
     {
 		title: 'Contents',
 		index: '0',
-		type: 'toPuzzles',
-        link: 'puzzles contents'
+		type: 'toVerses',
+        link: 'home'
     },
     {
-		title: 'Today\'s Puzzle',
+		title: 'Today\'s Verse',
 		index: '1',
-		type: 'toPuzzles',
-        link: 'game board'
+		type: 'toVerses',
+        link: 'game'
     },
     {
-		title: 'Daily Puzzles',
+		title: 'Daily Verses',
 		index: '2',
-		type: 'toPuzzles',
-        link: 'daily launcher'
+		type: 'toVerses',
+        link: 'daily'
     },
     {
 		title: 'Easy',
@@ -24,22 +24,22 @@ module.exports = [
         link: 'store',
         data:[
                 {
-                name: 'Capri',
+                name: 'Inspiration',
                 product_id: 'fm.e.capri.50',
                 price: '$1.99',
                 show: 'true',
-                num_puzzles: '50',
+                num_verses: '50',
                 difficulty: 'E',
-                color: '#00BFFF',
+                color: '#831d1d',
                 },
                 {
-                name: 'Chartreuse',
+                name: 'Forgiveness',
                 product_id: 'fm.e.chartreuse.50',
                 price: '$1.99',
                 show: 'true',
-                num_puzzles: '50',
+                num_verses: '50',
                 difficulty: 'E',
-                color: '#c1cd23'//'#DFFF00',
+                color: '#1a4bb0'//'#DFFF00',
                 }
             ]
     },
@@ -50,22 +50,22 @@ module.exports = [
         link: 'store',
         data:[
                 {
-                name: 'Bungalow',
+                name: 'Friendship',
                 product_id: 'fm.m.bungalow.50',
                 price: '$1.99',
                 show: 'true',
-                num_puzzles: '50',
+                num_verses: '50',
                 difficulty: 'M',
-                color: '#138808',
+                color: '#447054',
                 },
                 {
-                name: 'Cruise',
+                name: 'Hope',
                 product_id: 'fm.m.cruise.50',
                 price: '$1.99',
                 show: 'true',
-                num_puzzles: '50',
+                num_verses: '50',
                 difficulty: 'M',
-                color: '#2A52BE',
+                color: '#b6b00f',
                 }
             ]
     },
@@ -76,22 +76,22 @@ module.exports = [
         link: 'store',
         data:[
                 {
-                name: 'Blizzard',
+                name: 'Love',
                 product_id: 'fm.h.blizzard.50',
                 price: '$1.99',
                 show: 'true',
-                num_puzzles: '50',
+                num_verses: '50',
                 difficulty: 'H',
-                color: '#E7FEFF',
+                color: '#983a7a',
                 },
                 {
-                name: 'Cyclone',
+                name: 'Strength',
                 product_id: 'fm.h.cyclone.50',
                 price: '$1.99',
                 show: 'true',
-                num_puzzles: '50',
+                num_verses: '50',
                 difficulty: 'H',
-                color: '#DE3163',
+                color: '#107088',
                 }
             ]
     },
@@ -102,22 +102,22 @@ module.exports = [
         link: 'store',
         data:[
                 {
-                name: 'Art & Literature',
+                name: 'Peace',
                 product_id: 'fm.t.art_and_literature.50',
                 price: '$1.99',
                 show: 'true',
-                num_puzzles: '50',
+                num_verses: '50',
                 difficulty: 'H',
-                color: '#A50B5E',
+                color: '#074f3d',
                 },
                 {
-                name: 'Food & Drink',
+                name: 'Encouragement',
                 product_id: 'fm.t.food_and_drink.50',
                 price: '$1.99',
                 show: 'true',
-                num_puzzles: '50',
+                num_verses: '50',
                 difficulty: 'H',
-                color: '#AAF0D1',
+                color: '#4033c0',
                 }
             ]
     },
@@ -168,7 +168,7 @@ module.exports = [
     {
 		title: 'How To Play',
 		index: '13',
-		type: 'toPuzzles',
+		type: 'toVerses',
         link: 'app_intro'
     },
     {
@@ -188,12 +188,12 @@ module.exports = [
 		index: '16',
 		type: 'daily',
 		show: 'true',
-		num_puzzles: '1',
+		num_verses: '1',
 		num_solved: '0',
         product_id: '',
 		bg_color: '#055105',
-		puzzles:[
-            `In the beginning God created the heavens and the earth. Now the earth was formless and empty, darkness was over the surface of the deep, and the Spirit of God was hovering over the waters.`
+		verses:[
+            `Genesis 1:1-2**In the beginning God created the heavens and the earth. Now the earth was formless and empty, darkness was over the surface of the deep, and the Spirit of God was hovering over the waters.`
         ]
 	},
 	{
@@ -201,14 +201,14 @@ module.exports = [
 		index: '17',
 		type: 'daily',
 		show: 'true',
-		num_puzzles: '3',
+		num_verses: '3',
 		num_solved: '0',
         product_id: '',
 		bg_color: '#795959',
-		puzzles:[
-            'wo~^|rk|outs:Exercise sessions**br|oa|ds|^|rd:Heavy cut-and-thrust weapon**hard|^|ods:Mahogany, maple, oak and teak, for example**glow|^|rm:A bioluminescent insect larva**ca|nc|un:Mexican city on the Yucatán Peninsula**po|ck|ma|rk:Pitted scar on the skin**sh|er|^|od:Royal forest in Nottinghamshire',
-            'ef~whit|^|ish:Cod, haddock, hake and pollock for example**cir|ca|dian:On a twenty-four-hour cycle**in|^|fab|le:Can\'t be expressed in words**stup|^|ac|tion:State of astonishment**to|wr|op|es:They\'re sometimes found between bumpers**ther|^|ore:Ergo**sp|ad|^|ul:Just a bit of dirt',
-            'us~malo|doro|^:Not pleasant-smelling**excl|^|ivi|ty:Degree of restrictiveness**inte|rvie|wed:Met with about a job**co|nt|in|uo|^:Without cessation**^|ual:The norm**so|^|ing:Drenching with liquid**cl|in|gs|to|ne:Variety of peach'
+		verses:[
+            `John 3:16**For God so loved the world, that he gave`,
+            `John 3:16**For God so loved the world, that he gave his one and only Son, that whoever believes in him should not perish, but have eternal life.`,
+            `John 3:16**For God so loved the world, that he gave his one and only Son, that whoever believes in him should not perish, but have eternal life.`
         ]
 	},
 	{
@@ -216,11 +216,11 @@ module.exports = [
 		index: '18',
 		type: 'daily',
 		show: 'false',
-		num_puzzles: '30',
+		num_verses: '30',
 		num_solved: '0',
         product_id: '',
 		bg_color: '#FFB300',
-		puzzles:[
+		verses:[
             'wo~^|rk|outs:Exercise sessions**br|oa|ds|^|rd:Wide-bladed hand-wielded weapon**hard|^|ods:Mahogany, maple, oak and teak, for example**glow|^|rm:A bioluminescent insect larva**ca|nc|un:Mexican city on the Yucatán Peninsula**po|ck|ma|rk:Pitted scar on the skin**sh|er|^|od:Royal forest in Nottinghamshire',
             'ef~whit|^|ish:Cod, haddock, hake and pollock for example**cir|ca|dian:On a twenty-four-hour cycle**in|^|fab|le:Can\'t be expressed in words**stup|^|ac|tion:State of astonishment**to|wr|op|es:They\'re sometimes found between bumpers**ther|^|ore:Ergo**sp|ad|^|ul:Just a bit of dirt',
             'us~malo|doro|^:Not pleasant-smelling**excl|^|ivi|ty:Degree of restrictiveness**inte|rvie|wed:Met with about a job**co|nt|in|uo|^:Without cessation**^|ual:The norm**so|^|ing:Drenching with liquid**cl|in|gs|to|ne:Variety of peach',
@@ -258,12 +258,12 @@ module.exports = [
 		index: '19',
 		type: 'mypack',
 		show: 'true',
-		num_puzzles: '30',
+		num_verses: '30',
 		num_solved: '0',
 		solved: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         product_id: '',
 		bg_color: '#2B0B30',
-		puzzles:[
+		verses:[
             'aba~al|^|ma:Home of the \'Crimson Tide\'**chin|less:Lacking strength of character**^|shed|ly:In an embarrassed way**rut|^|ga:Yellow-fleshed root eaten as a vegetable**^|ck:What one is sometimes taken**catw|alk:Where models strut**^|ted:Let up**con|tr|^|nd:Illegal merchandise**^|lo|ne:An edible mollusk of warm seas**outp|atie|nt:Procedure not requiring admittance',
             'sc~di|^|ov|er|ed:Found by talent scouts**spl|ur|ges:Spends big**pre|^|ho|ol:Where much art is produced**lo|ser:1994 Beck hit**di|^|ipl|es:Close followers**^|ot|ch:Whisky, not Whiskey**di|^|re|dit:Damage the reputation of',
             'tl~hus|^|es:Scams**prop|or|ti|on:Amount in relation to a whole**san|dc|as|^|es:2016 Beyonce song**ou|^|iers:Data not adhering to the norm**coun|ter|ma|nd:Revoke an order**tur|^|ed|ov|es:Two of them on the second day',
@@ -303,7 +303,7 @@ module.exports = [
         product_id: '',
         price: '',
 		show: 'true',
-		num_puzzles: '',
+		num_verses: '',
 		bg_color: '#000000'
 	},
 	{
@@ -313,7 +313,7 @@ module.exports = [
         product_id: '',
         price: '',
 		show: 'true',
-		num_puzzles: '',
+		num_verses: '',
 		bg_color: '#000000'
 	},
 	{
@@ -323,7 +323,7 @@ module.exports = [
         product_id: '',
         price: '',
 		show: 'true',
-		num_puzzles: '',
+		num_verses: '',
 		bg_color: '#000000'
 	},
 	{
@@ -333,7 +333,7 @@ module.exports = [
         product_id: '',
         price: '',
 		show: 'true',
-		num_puzzles: '',
+		num_verses: '',
 		bg_color: '#000000'
 	}
 ];
