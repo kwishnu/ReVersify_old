@@ -24,7 +24,7 @@ module.exports = class Social extends Component {
         try {
             this.props.navigator.pop({
                 passProps: {
-                    puzzleData: this.props.puzzleData,
+                    homeData: this.props.homeData,
                 }
             });
         }

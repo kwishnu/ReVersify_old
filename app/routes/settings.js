@@ -26,7 +26,7 @@ module.exports = class Settings extends Component {
             sounds_state: true,
             sounds_text: 'Game sounds on',
             color_state: true,
-            use_colors: 'Use Puzzle Pack colors',
+            use_colors: 'Use Verse Collection colors',
             notifs_state: true,
             notif_time: '7',
             notif_text: 'Yes, at',
@@ -133,9 +133,9 @@ module.exports = class Settings extends Component {
     handleHardwareBackButton() {
         try {
             this.props.navigator.pop({
-                id: 'puzzles contents',
+                id: 'home',
                 passProps: {
-                    puzzleData: this.props.puzzleData,
+                    homeData: this.props.homeData,
                 }
             });
         }
@@ -151,7 +151,7 @@ module.exports = class Settings extends Component {
         };
     }
     toggleGameSounds(state){
-        var textToUse = (state)?'Game sounds on':'Game sounds off';
+        var textToUse = (state)?'Sounds on':'Sounds off';
         this.setState({sounds_text: textToUse});
         try {
             AsyncStorage.setItem(KEY_Sound, state.toString());
@@ -160,7 +160,7 @@ module.exports = class Settings extends Component {
         }
     }
     toggleColor(state){
-        var strToUse = (state)?'Use Puzzle Pack colors':'Using default colors';
+        var strToUse = (state)?'Use Verse Collection colors':'Using default colors';
         this.setState({use_colors: strToUse});
         try {
             AsyncStorage.setItem(KEY_Color, state.toString());
@@ -222,7 +222,7 @@ module.exports = class Settings extends Component {
     startNotifications(time) {
         var tomorrowAM = new Date(Date.now() + (moment(tonightMidnight).add(parseInt(time, 10), 'hours').valueOf()) - nowISO);
 //        PushNotification.localNotificationSchedule({
-//            message: "A new Daily Puzzle is in!",
+//            message: "A new Daily Verse is in!",
 //            vibrate: true,
 //            soundName: 'plink.mp3',
 //            //repeatType: 'day',//can be 'time', if so use following:
@@ -280,7 +280,7 @@ module.exports = class Settings extends Component {
                             </View>
                             <View style={[settings_styles.parameter_container, {marginTop: height*0.04}]}>
                                 <View style={settings_styles.text_container}>
-                                    <Text style={[settings_styles.text, {paddingLeft: 15}]}>Receive new puzzle notifications...</Text>
+                                    <Text style={[settings_styles.text, {paddingLeft: 15}]}>Receive new Verse notifications...</Text>
                                 </View>
                             </View>
                             <View style={[settings_styles.parameter_container, {marginTop: 8}]}>
@@ -351,7 +351,7 @@ const settings_styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#12046c'
+        backgroundColor: '#2B0B30'
     },
     header: {
         flex: 1,
