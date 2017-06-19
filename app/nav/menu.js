@@ -72,7 +72,7 @@ module.exports = class Menu extends Component {
     }
 }
 
-var menu_styles = StyleSheet.create({
+const menu_styles = StyleSheet.create({
     container: {
         flex: 1,
         width: width,
