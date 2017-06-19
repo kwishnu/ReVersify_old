@@ -10,6 +10,10 @@ const deepCopy = require('../config/deepCopy.js');
 const styles = require('../styles/styles');
 const {width, height} = require('Dimensions').get('window');
 const KEY_Sound = 'soundKey';
+const KEY_solvedTP = 'solvedTP';
+const KEY_daily_solved_array = 'solved_array';
+let dsArray = [];
+let homeData = {};
 let Sound = require('react-native-sound');
 
 const click = new Sound('click.mp3', Sound.MAIN_BUNDLE, (error) => {
@@ -97,6 +101,10 @@ class Game extends Component {
         this.state = {
             id: 'game',
             title: this.props.title,
+            index: this.props.index,
+            homeData: this.props.homeData,
+            daily_solvedArray: this.props.daily_solvedArray,
+            dataElement: this.props.dataElement,
             shouldShowDropdown: false,
             isLoading: true,
             pan: new Animated.ValueXY(0),
@@ -139,6 +147,7 @@ class Game extends Component {
             showHintButton: true,
             showFB: true,
             showTwitter: true,
+            letterImage: require('../images/letters/i.png'),
             arrowImage: require('../images/arrowforward.png'),
             scaleXY: new Animated.Value(0),
             soundString: 'Mute Sounds',
@@ -150,16 +159,32 @@ class Game extends Component {
     componentDidMount() {
         BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
         AppState.addEventListener('change', this.handleAppStateChange);
-        let verseArray = this.props.homeData[16].puzzles[0].split('**');
+        homeData = this.state.homeData;
+        let verseArray = this.props.homeData[this.props.dataElement].verses[this.props.index].split('**');
+        dsArray = this.props.daily_solvedArray;
         let chapterVerse = verseArray[0];
         let verseStr = verseArray[1];
         let initial = verseStr.substr(0, 1);
         verseStr = verseStr.substring(1);
+        switch(initial){
+//            case 'A':
+//                imageString = '../images/letters/a.png';
+//                break;
+            case 'I':
+              this.setState({ letterImage: require('../images/letters/i.png') });
+                break;
+            case 'F':
+                this.setState({ letterImage: require('../images/letters/f.png') });
+                break;
+            default:
+                this.setState({ letterImage: require('../images/letters/i.png') });
+        }
+
         this.populateArrays(verseStr).then((values) => {
             if(values){
-                this.setState({ fragmentOrder: values.fragmentOrder, nextFrag: values.nextFrag, chapterVerse: 'Genesis 1:1-2',
-                                frag0: values.frag0, frag1: values.frag1, frag2: values.frag2, frag3: values.frag3, frag4: values.frag4, frag5: values.frag5, frag6: values.frag6, frag7: values.frag7, frag8: values.frag8, frag9: values.frag9, frag10: values.frag10, frag11: values.frag11, frag12: values.frag12,
-                                frag13: values.frag13, frag14: values.frag14, frag15: values.frag15, frag16: values.frag16, frag17: values.frag17, frag18: values.frag18, frag19: values.frag19, frag20: values.frag20, frag21: values.frag21, frag22: values.frag22, frag23: values.frag23
+                this.setState({ fragmentOrder: values.fragmentOrder, nextFrag: values.nextFrag, frag0: values.frag0, frag1: values.frag1, frag2: values.frag2, frag3: values.frag3, frag4: values.frag4, frag5: values.frag5, frag6: values.frag6, frag7: values.frag7, frag8: values.frag8, frag9: values.frag9, frag10: values.frag10,
+                                frag11: values.frag11, frag12: values.frag12,  frag13: values.frag13, frag14: values.frag14, frag15: values.frag15, frag16: values.frag16, frag17: values.frag17, frag18: values.frag18, frag19: values.frag19, frag20: values.frag20, frag21: values.frag21, frag22: values.frag22, frag23: values.frag23,
+                                chapterVerse: chapterVerse
 
                 })
                 this.assignWordsToRows(verseStr);
@@ -316,7 +341,6 @@ class Game extends Component {
                 let remainingStr = verseKeyString;
                 let haveFinished = false;
                 let rndLength = 0;
-
                 while (!haveFinished){
                     let fragAssemble = '';
                     if (remainingStr.length > 15){
@@ -393,11 +417,56 @@ class Game extends Component {
                 }
         });
     }
-    closeGame(){
+    nextGame(){
+        var toWhere = this.props.fromWhere;
+        var onLastVerse = (this.props.fromWhere == 'puzzles contents' || newIndex == parseInt(this.props.puzzleData[this.props.dataElement].num_puzzles, 10))?true:false;
+        if(this.props.fromWhere == 'home' || onLastVerse){
+            if(this.props.fromWhere == 'daily')toWhere = 'home';
+            this.closeGame(toWhere);
+            return;
+        }
+
+
+    }
+    closeGame(where){
+        var myPackArray = [];
+        var str = '';
+        for (var key in homeData){
+            if (homeData[key].type == 'mypack'){
+                myPackArray.push(homeData[key].title);
+            }
+        }
+        var levels = [3,4,5,6];//Easy, Moderate, Hard, Theme
+        for(var i=0; i<4; i++){
+            var titleIndex = -1;
+            var rnd = Array.from(new Array(homeData[levels[i]].data.length), (x,i) => i);
+            rnd = shuffleArray(rnd);
+            for (var r=0; r<homeData[levels[i]].data.length; r++){
+                if (myPackArray.indexOf(homeData[levels[i]].data[rnd[r]].name) < 0){
+                    titleIndex = rnd[r];
+                    break;
+                }
+            }
+            if (titleIndex !== -1){
+                homeData[20 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
+                homeData[20 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
+                homeData[20 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
+                homeData[20 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
+            }else{
+                homeData[20 + i].show = 'false';
+            }
+        }
         this.props.navigator.replace({
-            id: this.props.fromWhere,
+            id: where,
             passProps: {
-                homeData: this.props.homeData
+                homeData: this.props.homeData,
+                daily_solvedArray: this.state.daily_solvedArray,
+                dataElement: this.props.dataElement,
+                hasRated: this.state.hasRated,
+                puzzleArray: this.props.puzzleArray,
+                textColor: this.props.textColor,
+                bgColor: this.props.bgColor,
+                title: this.props.myTitle,
             }
        });
     }
@@ -458,10 +527,37 @@ class Game extends Component {
                         this.setState({doneWithVerse: true});
                             if(this.state.useSounds == true){fanfare.play();}
                             this.flipPanel();
-//                            setTimeout(() => {this.setState({ showHintButton: false, showNextArrow: true })}, 800);
-//                            setTimeout(() => {this.showButtonPanel()}, 2000);
                             this.setState({showHintButton: false, showNextArrow: true});
                             this.showButtonPanel();
+                            if(this.props.fromWhere == 'collection'){
+                                var newNumSolved = (parseInt(homeData[this.props.dataElement].num_solved, 10) + 1).toString();
+                                homeData[this.props.dataElement].num_solved = newNumSolved;
+                                homeData[this.props.dataElement].solved[this.state.index] = 1;
+                                var onLastVerse=(parseInt(this.state.index, 10) + 1 == parseInt(homeData[this.props.dataElement].num_verses, 10))?true:false;
+                                if(onLastVerse){homeData[this.props.dataElement].type = 'solved';}
+                                try {
+                                    AsyncStorage.setItem(KEY_Verses, JSON.stringify(homeData));
+                                } catch (error) {
+                                    window.alert('AsyncStorage error: ' + error.message);
+                                }
+                            }else if(this.props.fromWhere == 'home'){
+                                dsArray[this.state.index] = '1';
+                            }else{//from daily
+                                dsArray[this.state.index + 1] = '1';
+                                this.setState({daily_solvedArray: dsArray});
+                            }
+                            try {
+                                AsyncStorage.setItem(KEY_daily_solved_array, JSON.stringify(dsArray));
+                            } catch (error) {
+                                window.alert('AsyncStorage error: ' + error.message);
+                            }
+                            if(this.props.fromWhere == 'home'){
+                                try {
+                                    AsyncStorage.setItem(KEY_solvedTP, 'true');
+                                } catch (error) {
+                                    window.alert('AsyncStorage error: ' + error.message);
+                                }
+                            }
                             break;
                         }
                         onWord = 0;
@@ -628,9 +724,9 @@ class Game extends Component {
             case 3://go to app intro 2nd page:
         try {
             this.props.navigator.push({
-                id: 'start scene',
+                id: 'intro',
                 passProps: {
-                    destination: 'game board',
+                    destination: 'game',
                     introIndex: 1,
                     }
             });
@@ -669,7 +765,7 @@ class Game extends Component {
                 <View style={{flex: 1}}>
                     <View style={[game_styles.container, {backgroundColor: this.state.bgColor}]}>
                         <View style={[game_styles.header, this.headerFooterBorder(this.state.bgColor), this.headerFooterColor(this.state.bgColor)]}>
-                            <Button style={{left: height*.02}} onPress={ () => this.closeGame() }>
+                            <Button style={{left: height*.02}} onPress={ () => this.closeGame(this.props.fromWhere) }>
                                 <Image source={ require('../images/close.png') } style={{ width: normalize(height*0.07), height: normalize(height*0.07) }} />
                             </Button>
                             <Text style={styles.header_text} >{ this.state.title }</Text>
@@ -679,7 +775,7 @@ class Game extends Component {
                         </View>
                         <View style={game_styles.tablet}>
                                 <Image style={{ width: normalize(height/2.5), height: normalize(height/4) }} source={require('../images/biblegraphic.png')} />
-                                <Image style={game_styles.letter} source={require('../images/letters/i.png')} />
+                                <Image style={game_styles.letter} source={this.state.letterImage} />
                                 <View style={game_styles.verse_container}>
                                     <View style={game_styles.first_line}>
                                         <Text style={game_styles.verse_text} >{ this.state.line0Text }</Text>
@@ -836,7 +932,7 @@ const game_styles = StyleSheet.create({
         left: normalize(height/11.5),
         top: normalize(height/26.5),
         width: normalize(height/12),
-        height: normalize(height/12),
+        height: normalize(height/11.8),
     },
     verse_container: {
         flex: 1,

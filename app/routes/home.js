@@ -98,6 +98,7 @@ const CELL_WIDTH = Math.floor(width); // one tile's fraction of the screen width
 const CELL_PADDING = Math.floor(CELL_WIDTH * .08); // 5% of the cell width...+
 const TILE_WIDTH = (CELL_WIDTH - CELL_PADDING * 2);
 const BORDER_RADIUS = CELL_PADDING * .2;
+const KEY_solvedTV = 'solvedTV';
 const KEY_daily_solved_array = 'solved_array';
 const KEY_show_score = 'showScoreKey';
 const KEY_Score = 'scoreKey';
@@ -105,12 +106,12 @@ const KEY_NextBonus = 'bonusKey';
 const KEY_Color = 'colorKey';
 const KEY_midnight = 'midnight';
 const KEY_Premium = 'premiumOrNot';
-const KEY_Puzzles = 'puzzlesKey';
+const KEY_Verses = 'versesKey';
 const KEY_Time = 'timeKey';
 const KEY_solvedTP = 'solvedTP';
 const KEY_ratedTheApp = 'ratedApp';
 var homeData = [];
-var sArray = [];
+var dsArray = [];
 var solvedTodayOrNot = false;
 
 
@@ -127,14 +128,14 @@ class Home extends Component{
         });
         var { dataBlob, sectionIds, rowIds } = formatData(this.props.homeData);
         this.state = {
-            id: 'puzzles contents',
+            id: 'home',
             isLoading: true,
             isOpen: false,
             shouldShowDialog: false,
             showFullDialog: true,
             moveToCompleted: 'true',
             strWhereToSend: '',
-            strOpenPuzzles: '',
+            strOpenVerses: '',
             openClose: true,
             indexSelected: 0,
             todayFull: null,
@@ -153,7 +154,99 @@ class Home extends Component{
         Orientation.lockToPortrait();
         BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
         AppState.addEventListener('change', this.handleAppStateChange);
-        this.setState({isLoading: false})
+        let todayfull = moment().format('MMMM D, YYYY');
+        let nowISO = moment().valueOf();
+        let tonightMidnight = moment().endOf('day').valueOf();
+        try {
+            AsyncStorage.setItem(KEY_Verses, JSON.stringify(this.props.homeData));
+            AsyncStorage.setItem(KEY_Time, JSON.stringify(nowISO));
+        } catch (error) {
+            window.alert('AsyncStorage error: 164' + error.message);
+        }
+        AsyncStorage.getItem(KEY_solvedTP).then((solvedTodays) => {
+            if (solvedTodays !== null) {
+                solvedTodayOrNot = (solvedTodays == 'true')?true:false;
+            }else{
+                solvedTodayOrNot = false;
+                try {
+                    AsyncStorage.setItem(KEY_solvedTP, 'false');
+                } catch (error) {
+                    window.alert('AsyncStorage error: 174' + error.message);
+                }
+            }
+            return AsyncStorage.getItem(KEY_ratedTheApp);
+        }).then((rated) => {
+            if (rated !== null) {
+                if(rated == 'true')this.setState({hasRated: rated});
+            }else{
+                try {
+                    AsyncStorage.setItem(KEY_ratedTheApp, 'false');
+                } catch (error) {
+                    window.alert('AsyncStorage error: 185' + error.message);
+                }
+            }
+            return AsyncStorage.getItem(KEY_show_score);
+        }).then((showScore) => {
+            if (showScore !== null) {
+                this.setState({total_opacity: parseInt(showScore, 10)});
+            }else{
+                try {
+                    AsyncStorage.setItem(KEY_show_score, '1');
+                } catch (error) {
+                    window.alert('AsyncStorage error: 196' + error.message);
+                }
+            }
+            return AsyncStorage.getItem(KEY_daily_solved_array);
+        }).then((theArray) => {
+            if (theArray !== null) {
+              dsArray = JSON.parse(theArray);
+            } else {
+                var solvedArray = new Array(31).fill('0');
+                dsArray = solvedArray;
+                try {
+                   AsyncStorage.setItem(KEY_daily_solved_array, JSON.stringify(solvedArray));
+                } catch (error) {
+                   window.alert('AsyncStorage error 209: ' + error.message);
+                }
+            }
+            return AsyncStorage.getItem(KEY_midnight);
+        }).then( (value) => {
+            if (value !== null) {
+                var storedMidnight = parseInt(JSON.parse(value), 10);
+                var milliSecsOver = nowISO - storedMidnight;
+                if(milliSecsOver > 0){//at least the next day, update daily solved array
+                    solvedTodayOrNot = false;
+                    var numDays = Math.ceil(milliSecsOver/86400000);
+                    numDays=(numDays>30)?30:numDays;
+                    for (var shiftArray=0; shiftArray<numDays; shiftArray++){
+                        dsArray.unshift('0');
+                        dsArray.pop();
+                    }
+                    try {
+                        AsyncStorage.setItem(KEY_daily_solved_array, JSON.stringify(dsArray));
+                        AsyncStorage.setItem(KEY_midnight, JSON.stringify(tonightMidnight));
+                        AsyncStorage.setItem(KEY_solvedTP, 'false');
+                    } catch (error) {
+                        window.alert('AsyncStorage error: 230' + error.message);
+                    }
+                }
+                return true;
+            } else {
+                try {
+                    AsyncStorage.setItem(KEY_midnight, JSON.stringify(tonightMidnight));
+                } catch (error) {
+                    window.alert('AsyncStorage error: 238' + error.message);
+                }
+                return true;
+            }
+        }).then((ready)=>{
+            this.setState({todayFull: todayfull, isLoading: false});
+        }).catch(function(error) {
+            window.alert('home.js: ' + error.message);
+        });
+//        if (this.props.connectionBool == false){
+//            Alert.alert('No Server Connection', 'Sorry, unable to load Daily Verses');
+//        }
     }
     componentWillUnmount(){
         BackAndroid.removeEventListener('hardwareBackPress', this.handleHardwareBackButton);
@@ -220,13 +313,13 @@ class Home extends Component{
             var myPackArray = [];
             var keepInList = [];
             switch (item.link){
-                case 'puzzles contents':
+                case 'verses':
                     this.toggle();
                     break;
-                case 'game board':
-                    this.onSelect('16','Today\'s Puzzle', null);
+                case 'game':
+                    this.onSelect('16','Today\'s Verse', null);
                     break;
-                case 'daily launcher':
+                case 'daily':
                     if(this.props.isPremium == 'true'){
                         this.onSelect('18','Last Thirty Days', null);
                     }else{
@@ -235,7 +328,7 @@ class Home extends Component{
                     break;
                 case 'app_intro':
                     this.props.navigator.push({
-                        id: 'start scene',
+                        id: 'intro',
                         passProps: {
                             destination: 'menu',
                             homeData: homeData,
@@ -260,7 +353,7 @@ class Home extends Component{
                         id: 'store',
                         passProps: {
                             dataIndex: item.index,
-                            title: item.title + ' Puzzle Packs',
+                            title: item.title + ' Verse Packs',
                             availableList: keepInList,
                             homeData: homeData,
                         }
@@ -354,7 +447,7 @@ class Home extends Component{
     getTextColor(bg, index){
         var strToReturn = invertColor(bg, true);
         if(index == '16' && solvedTodayOrNot){
-            strToReturn = '#555';
+            strToReturn = '#999';
             return {
                 color: strToReturn,
                 fontWeight: 'bold'
@@ -364,25 +457,90 @@ class Home extends Component{
             color: strToReturn,
         };
     }
-    getTitle(title, numPuzzles, index){
-        var appendNum = (parseInt(index, 10) > 19)?'  ' + numPuzzles:'';
+    getTitle(title, numVerses, index){
+        var appendNum = (parseInt(index, 10) > 19)?'  ' + numVerses:'';
         var titleToReturn = (title.indexOf('*') > -1)?title.substring(1):title;
         titleToReturn = titleToReturn + appendNum;
         return titleToReturn;
     }
-    onSelect(color) {
-        var todayFull = moment().format('MMMM D, YYYY');
-        this.props.navigator.replace({
-            id: 'game',
-            passProps: {
-                fromWhere: 'home',
-                homeData: this.state.homeData,
-                bgColor: color,
-                title: todayFull,
-                five_rows: true,
-                seven_rows: false
+    onSelect(index, title, bg, productID) {
+
+        //purchase code here
+
+        var theDestination = 'daily';
+        var gripeText = '';
+        var useColors = '';
+        var bgColorToSend = '';
+
+        switch(title){
+            case 'Today\'s Verse':
+                theDestination = 'game';
+                this.props.navigator.replace({
+                    id: theDestination,
+                    passProps: {
+                        homeData: this.state.homeData,
+                        daily_solvedArray: dsArray,
+                        title: this.state.todayFull,
+                        index: '0',
+                        bgColor: bg,
+                        fromWhere: 'home',
+                        dataElement: index,
+                        isPremium: this.state.isPremium,
+                        hasRated: this.state.hasRated
+                    },
+                });
+                return;
+            case 'Last Three Days':
+                gripeText = 'Purchase any Verse Collection and always have access here to the previous 30 Daily Verses!';
+            case 'Last Thirty Days':  //fallthrough
+                theDestination = 'daily';
+                theTitle = 'Daily Verses';
+                this.props.navigator.replace({
+                    id: theDestination,
+                    passProps: {
+                        homeData: this.state.homeData,
+                        daily_solvedArray: dsArray,
+                        title: title,
+                        todayFull: this.state.todayFull,
+                        gripeText: gripeText,
+                        dataElement: index,
+                        isPremium: this.state.isPremium,
+                        hasRated: this.state.hasRated,
+                        bgColor: '#795959'
+                    },
+                });
+                return;
+        }
+        AsyncStorage.getItem(KEY_Color).then((colors) => {//a verse collection launcher:
+            if (colors !== null) {
+                useColors = colors;
+            }else{
+                useColors = 'true';
+                try {
+                    AsyncStorage.setItem(KEY_Color, useColors);//
+                } catch (error) {
+                    window.alert('AsyncStorage error: ' + error.message);
+                }
             }
-       });
+            bgColorToSend = (useColors == 'true')?bg:'#055105';//#055105 default color
+            this.props.navigator.replace({
+                id: theDestination,
+                passProps: {
+                    homeData: this.state.homeData,
+                    daily_solvedArray: dsArray,
+                    title: title,
+                    todayFull: this.state.todayFull,
+                    gripeText: gripeText,
+                    dataElement: index,
+                    isPremium: this.state.isPremium,
+                    hasRated: this.state.hasRated,
+                    bgColor: bgColorToSend
+                },
+            });
+        });
+
+
+
 
     }
     showDialog(index, type){
@@ -390,17 +548,17 @@ class Home extends Component{
         Vibration.vibrate(25);
         BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
         if(type == 'mypack' || type == 'solved'){
-            let strSolvedOrNot = (type == 'solved')?'Move to My Puzzles':'Move to Completed';
+            let strSolvedOrNot = (type == 'solved')?'Move to My Collections':'Move to Completed';
             let sendToCompleted = (type == 'solved')?'false':'true';
-            let strOpenOrClose = (parseInt(homeData[index].num_solved, 10) < parseInt(homeData[index].num_puzzles, 10))?'Open all puzzles':'Open first only';
-            let openOrClose = (strOpenOrClose == 'Open all puzzles')? true:false;
+            let strOpenOrClose = (parseInt(homeData[index].num_solved, 10) < parseInt(homeData[index].num_verses, 10))?'Open all verses':'Open first only';
+            let openOrClose = (strOpenOrClose == 'Open all verses')? true:false;
 
             this.setState({ shouldShowDialog: true,
                             showFullDialog: true,
                             strWhereToSend: strSolvedOrNot,
                             moveToCompleted: sendToCompleted,
                             indexSelected: index,
-                            strOpenPuzzles: strOpenOrClose,
+                            strOpenVerses: strOpenOrClose,
                             openClose: openOrClose
             });
         }else{
@@ -428,7 +586,7 @@ class Home extends Component{
                 break;
             case 2:
                 if(this.state.openClose){
-                    homeData[this.state.indexSelected].num_solved = homeData[this.state.indexSelected].num_puzzles;
+                    homeData[this.state.indexSelected].num_solved = homeData[this.state.indexSelected].num_verses;
                 }else{
                     homeData[this.state.indexSelected].num_solved = '0';
                 }
@@ -437,13 +595,13 @@ class Home extends Component{
                 homeData[this.state.indexSelected].show = 'false';
                 break;
             case 4:
-                for (let showPuzzles=19; showPuzzles<homeData.length; showPuzzles++){
-                    homeData[showPuzzles].show = 'true';
+                for (let showVerses=19; showVerses<homeData.length; showVerses++){
+                    homeData[showVerses].show = 'true';
                 }
                 break;
            }
             try {
-                AsyncStorage.setItem(KEY_Puzzles, JSON.stringify(homeData));
+                AsyncStorage.setItem(KEY_Verses, JSON.stringify(homeData));
             } catch (error) {
                 window.alert('AsyncStorage error: ' + error.message);
             }
@@ -477,17 +635,17 @@ class Home extends Component{
                                 <Text style={[container_styles.total_text, {opacity: this.state.total_opacity}]}>{this.state.total_score.toLocaleString()}</Text>
                             </View>
                         </View>
-                        <View style={ container_styles.puzzles_container }>
+                        <View style={ container_styles.verses_container }>
                              <ListView  showsVerticalScrollIndicator ={false}
                                         contentContainerStyle={ container_styles.listview }
                                         dataSource={this.state.dataSource}
                                         renderRow={(rowData) =>
                                              <View>
-                                                 <TouchableHighlight onPress={() => this.onSelect(rowData.bg_color)}
+                                                 <TouchableHighlight onPress={() => this.onSelect(rowData.index, rowData.title, rowData.bg_color, rowData.product_id)}
                                                                      onLongPress={()=> this.showDialog(rowData.index, rowData.type)}
                                                                      style={[container_styles.launcher, this.bg(rowData.bg_color), this.lightBorder(rowData.bg_color, rowData.type)]}
                                                                      underlayColor={rowData.bg_color} >
-                                                     <Text style={[container_styles.launcher_text, this.getTextColor(rowData.bg_color, rowData.index)]}>{this.getTitle(rowData.title, rowData.num_puzzles, rowData.index)}</Text>
+                                                     <Text style={[container_styles.launcher_text, this.getTextColor(rowData.bg_color, rowData.index)]}>{this.getTitle(rowData.title, rowData.num_verses, rowData.index)}</Text>
                                                  </TouchableHighlight>
                                              </View>
                                          }
@@ -495,7 +653,7 @@ class Home extends Component{
                              />
                         </View>
                         {this.state.shouldShowDialog &&
-                                <ContentsDialog showFull={this.state.showFullDialog} onPress={(num)=>{ this.onDialogSelect(num); }} item1={this.state.strWhereToSend} item2={this.state.strOpenPuzzles} item3={'Hide from Contents'} item4={'Show hidden packs'} />
+                                <ContentsDialog showFull={this.state.showFullDialog} onPress={(num)=>{ this.onDialogSelect(num); }} item1={this.state.strWhereToSend} item2={this.state.strOpenVerses} item3={'Hide from Contents'} item4={'Show hidden collections'} />
                         }
                      </View>
                 </SideMenu>
@@ -550,7 +708,7 @@ const container_styles = StyleSheet.create({
         fontSize: normalizeFont(configs.LETTER_SIZE * 0.054),
         color: '#ffffff'
     },
-    puzzles_container: {
+    verses_container: {
         flex: 48,
         backgroundColor: '#cfe7c2',
         justifyContent: 'center',
