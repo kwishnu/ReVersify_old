@@ -1,4 +1,4 @@
-rootProject.name = 'ReVersify'
+rootProject.name = 'reVersify'
 
 include ':app'
 include ':react-native-orientation'
