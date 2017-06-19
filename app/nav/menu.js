@@ -24,7 +24,7 @@ module.exports = class Menu extends Component {
     }
     formatData(data) {
         const headings = 'ReVersify*Collections Store*Books Store*Social Media*About ReVersify'.split('*');
-        const keys = 'toPuzzles*store*combos*social*about'.split('*');
+        const keys = 'toVerses*store*combos*social*about'.split('*');
         const dataBlob = {};
         const sectionIds = [];
         const rowIds = [];
