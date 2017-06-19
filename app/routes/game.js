@@ -10,6 +10,7 @@ const deepCopy = require('../config/deepCopy.js');
 const styles = require('../styles/styles');
 const {width, height} = require('Dimensions').get('window');
 const KEY_Sound = 'soundKey';
+const KEY_Verses = 'versesKey';
 const KEY_solvedTP = 'solvedTP';
 const KEY_daily_solved_array = 'solved_array';
 let dsArray = [];
@@ -100,7 +101,7 @@ class Game extends Component {
         this.opac = new Animated.Value(0);
         this.state = {
             id: 'game',
-            title: this.props.title,
+//            title: this.props.title,
             index: this.props.index,
             homeData: this.props.homeData,
             daily_solvedArray: this.props.daily_solvedArray,
@@ -159,7 +160,7 @@ class Game extends Component {
     componentDidMount() {
         BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
         AppState.addEventListener('change', this.handleAppStateChange);
-        homeData = this.state.homeData;
+        homeData = this.props.homeData;
         let verseArray = this.props.homeData[this.props.dataElement].verses[this.props.index].split('**');
         dsArray = this.props.daily_solvedArray;
         let chapterVerse = verseArray[0];
@@ -227,28 +228,28 @@ class Game extends Component {
     }
     handleAppStateChange=(appState)=>{
         if(appState == 'active'){
-//            var timeNow = moment().valueOf();
-//            AsyncStorage.getItem(KEY_Time).then((storedTime) => {
-//                var sT = JSON.parse(storedTime);
-//                var diff = (timeNow - sT)/1000;
-//                if(diff>7200){
-//                    try {
-//                        AsyncStorage.setItem(KEY_Time, JSON.stringify(timeNow));
-//                    } catch (error) {
-//                        window.alert('AsyncStorage error: ' + error.message);
-//                    }
-//                    this.props.navigator.replace({
-//                        id: 'splash',
-//                        passProps: {motive: 'initialize'}
-//                    });
-//                }else{
-//                    try {
-//                        AsyncStorage.setItem(KEY_Time, JSON.stringify(timeNow));
-//                    } catch (error) {
-//                        window.alert('AsyncStorage error: ' + error.message);
-//                    }
-//                }
-//            });
+            var timeNow = moment().valueOf();
+            AsyncStorage.getItem(KEY_Time).then((storedTime) => {
+                var sT = JSON.parse(storedTime);
+                var diff = (timeNow - sT)/1000;
+                if(diff>7200){
+                    try {
+                        AsyncStorage.setItem(KEY_Time, JSON.stringify(timeNow));
+                    } catch (error) {
+                        window.alert('AsyncStorage error: ' + error.message);
+                    }
+                    this.props.navigator.replace({
+                        id: 'splash',
+                        passProps: {motive: 'initialize'}
+                    });
+                }else{
+                    try {
+                        AsyncStorage.setItem(KEY_Time, JSON.stringify(timeNow));
+                    } catch (error) {
+                        window.alert('AsyncStorage error: ' + error.message);
+                    }
+                }
+            });
         }
     }
     assignWordsToRows(verse){
@@ -417,31 +418,51 @@ class Game extends Component {
                 }
         });
     }
-    nextGame(){
-        var toWhere = this.props.fromWhere;
-        var onLastVerse = (this.props.fromWhere == 'puzzles contents' || newIndex == parseInt(this.props.puzzleData[this.props.dataElement].num_puzzles, 10))?true:false;
+    nextVerse(){
+        let newIndex = this.state.index + 1;
+        let onLastVerse = (this.props.fromWhere == 'home' || newIndex == parseInt(this.props.homeData[this.props.dataElement].num_verses, 10))?true:false;
         if(this.props.fromWhere == 'home' || onLastVerse){
-            if(this.props.fromWhere == 'daily')toWhere = 'home';
-            this.closeGame(toWhere);
+            this.closeGame('home');
             return;
         }
-
+        let nextTitle = '';
+        if(this.props.fromWhere == 'daily'){
+            let today = moment(this.props.title, 'MMMM D, YYYY');
+            nextTitle = today.subtract(1, 'days').format('MMMM D, YYYY');
+        }else{
+            nextTitle = (parseInt(this.props.title, 10) + 1).toString();
+        }
+        this.props.navigator.replace({
+            id: 'bounce',
+            passProps: {
+                homeData: this.props.homeData,
+                daily_solvedArray: this.state.daily_solvedArray,
+                dataElement: this.props.dataElement,
+                hasRated: this.state.hasRated,
+                textColor: this.props.textColor,
+                bgColor: this.props.bgColor,
+                senderTitle: this.props.myTitle,
+                fromWhere: this.props.fromWhere,
+                title: nextTitle,
+                index: newIndex
+            }
+       });
 
     }
     closeGame(where){
-        var myPackArray = [];
-        var str = '';
-        for (var key in homeData){
+        let myPackArray = [];
+        let str = '';
+        for (let key in homeData){
             if (homeData[key].type == 'mypack'){
                 myPackArray.push(homeData[key].title);
             }
         }
-        var levels = [3,4,5,6];//Easy, Moderate, Hard, Theme
-        for(var i=0; i<4; i++){
-            var titleIndex = -1;
-            var rnd = Array.from(new Array(homeData[levels[i]].data.length), (x,i) => i);
+        let levels = [3,4,5,6];//Easy, Moderate, Hard, Theme
+        for(let i=0; i<4; i++){
+            let titleIndex = -1;
+            let rnd = Array.from(new Array(homeData[levels[i]].data.length), (x,i) => i);
             rnd = shuffleArray(rnd);
-            for (var r=0; r<homeData[levels[i]].data.length; r++){
+            for (let r=0; r<homeData[levels[i]].data.length; r++){
                 if (myPackArray.indexOf(homeData[levels[i]].data[rnd[r]].name) < 0){
                     titleIndex = rnd[r];
                     break;
@@ -463,7 +484,6 @@ class Game extends Component {
                 daily_solvedArray: this.state.daily_solvedArray,
                 dataElement: this.props.dataElement,
                 hasRated: this.state.hasRated,
-                puzzleArray: this.props.puzzleArray,
                 textColor: this.props.textColor,
                 bgColor: this.props.bgColor,
                 title: this.props.myTitle,
@@ -523,41 +543,8 @@ class Game extends Component {
                     addSpace = true;
                     if (onWord + 1 == this.state.wordsArray[onLine].length){//at the end of a line
                         addSpace = false;
-                        if (onLine == 7 || this.state.wordsArray[onLine + 1].length == 0){//finished
-                        this.setState({doneWithVerse: true});
-                            if(this.state.useSounds == true){fanfare.play();}
-                            this.flipPanel();
-                            this.setState({showHintButton: false, showNextArrow: true});
-                            this.showButtonPanel();
-                            if(this.props.fromWhere == 'collection'){
-                                var newNumSolved = (parseInt(homeData[this.props.dataElement].num_solved, 10) + 1).toString();
-                                homeData[this.props.dataElement].num_solved = newNumSolved;
-                                homeData[this.props.dataElement].solved[this.state.index] = 1;
-                                var onLastVerse=(parseInt(this.state.index, 10) + 1 == parseInt(homeData[this.props.dataElement].num_verses, 10))?true:false;
-                                if(onLastVerse){homeData[this.props.dataElement].type = 'solved';}
-                                try {
-                                    AsyncStorage.setItem(KEY_Verses, JSON.stringify(homeData));
-                                } catch (error) {
-                                    window.alert('AsyncStorage error: ' + error.message);
-                                }
-                            }else if(this.props.fromWhere == 'home'){
-                                dsArray[this.state.index] = '1';
-                            }else{//from daily
-                                dsArray[this.state.index + 1] = '1';
-                                this.setState({daily_solvedArray: dsArray});
-                            }
-                            try {
-                                AsyncStorage.setItem(KEY_daily_solved_array, JSON.stringify(dsArray));
-                            } catch (error) {
-                                window.alert('AsyncStorage error: ' + error.message);
-                            }
-                            if(this.props.fromWhere == 'home'){
-                                try {
-                                    AsyncStorage.setItem(KEY_solvedTP, 'true');
-                                } catch (error) {
-                                    window.alert('AsyncStorage error: ' + error.message);
-                                }
-                            }
+                        if (onLine == 7 || this.state.wordsArray[onLine + 1].length == 0){//finished verse
+                            this.endOfGame();
                             break;
                         }
                         onWord = 0;
@@ -586,15 +573,60 @@ class Game extends Component {
                       })
         setTimeout(() => {this.playDropSound()}, 50);
     }
+    endOfGame(){
+        if(this.state.useSounds == true){fanfare.play();}
+        let onLastVerseInPack=(this.props.fromWhere == 'home' || parseInt(this.state.index, 10) + 1 == parseInt(this.props.homeData[this.props.dataElement].num_verses, 10))?true:false;
+        if (onLastVerseInPack){
+            this.setState({ arrowImage: require('../images/arrowbackward.png') });
+        }else{
+            this.setState({ arrowImage: require('../images/arrowforward.png') });
+        }
+        this.flipPanel();
+        this.setState({doneWithVerse: true, showHintButton: false, showNextArrow: true});
+        this.showButtonPanel();
+        if(this.props.fromWhere == 'collection'){
+            let newNumSolved = (parseInt(homeData[this.props.dataElement].num_solved, 10) + 1).toString();
+            homeData[this.props.dataElement].num_solved = newNumSolved;
+            homeData[this.props.dataElement].solved[this.state.index] = 1;
+            let onLastVerse=(parseInt(this.state.index, 10) + 1 == parseInt(homeData[this.props.dataElement].num_verses, 10))?true:false;
+            if(onLastVerse){homeData[this.props.dataElement].type = 'solved';}
+            try {
+                AsyncStorage.setItem(KEY_Verses, JSON.stringify(homeData));
+            } catch (error) {
+                window.alert('AsyncStorage error: ' + error.message);
+            }
+        }else if(this.props.fromWhere == 'home'){
+            dsArray[this.state.index] = '1';
+        }else{//from daily
+            dsArray[this.state.index + 1] = '1';
+            this.setState({daily_solvedArray: dsArray});
+        }
+        try {
+            AsyncStorage.setItem(KEY_daily_solved_array, JSON.stringify(dsArray));
+        } catch (error) {
+            window.alert('AsyncStorage error: ' + error.message);
+        }
+        if(this.props.fromWhere == 'home'){
+            try {
+                AsyncStorage.setItem(KEY_solvedTP, 'true');
+            } catch (error) {
+                window.alert('AsyncStorage error: ' + error.message);
+            }
+        }
+    }
     playDropSound(){
         if(!this.state.doneWithVerse && this.state.useSounds == true){plink1.play();}
     }
-    headerFooterBorder(color) {
-        var darkerColor = shadeColor(color, -30);
+    footerBorder(color) {
+        let darkerColor = shadeColor(color, 5);
+        return {borderColor: darkerColor};
+    }
+    headerBorder(color) {
+        let darkerColor = shadeColor(color, 5);
         return {borderColor: darkerColor};
     }
     headerFooterColor(color) {
-        var darkerColor = shadeColor(color, -70);
+        let darkerColor = shadeColor(color, -40);
         return {backgroundColor: darkerColor};
     }
     giveHint(frag){
@@ -628,7 +660,7 @@ class Game extends Component {
                 this.g.showNextTile(frag);
                 this.h.showNextTile(frag);
                 this.i.showNextTile(frag);
-            case rows > 2:
+            case rows > 1:
                 this.d.showNextTile(frag);
                 this.e.showNextTile(frag);
                 this.f.showNextTile(frag);
@@ -764,11 +796,11 @@ class Game extends Component {
             return (
                 <View style={{flex: 1}}>
                     <View style={[game_styles.container, {backgroundColor: this.state.bgColor}]}>
-                        <View style={[game_styles.header, this.headerFooterBorder(this.state.bgColor), this.headerFooterColor(this.state.bgColor)]}>
+                        <View style={[game_styles.header, this.headerBorder(this.state.bgColor), this.headerFooterColor(this.state.bgColor)]}>
                             <Button style={{left: height*.02}} onPress={ () => this.closeGame(this.props.fromWhere) }>
                                 <Image source={ require('../images/close.png') } style={{ width: normalize(height*0.07), height: normalize(height*0.07) }} />
                             </Button>
-                            <Text style={styles.header_text} >{ this.state.title }</Text>
+                            <Text style={styles.header_text} >{ this.props.title }</Text>
                             <Button style={{right: height*.02}} onPress={ () => this.showDropdown()}>
                                 <Image source={ require('../images/dropdown.png') } style={{ width: normalize(height*0.07), height: normalize(height*0.07) }} />
                             </Button>
@@ -865,7 +897,7 @@ class Game extends Component {
                                     </View>
                             }
                         </View>
-                        <View style={[game_styles.footer, this.headerFooterBorder(this.state.bgColor), this.headerFooterColor(this.state.bgColor)]}>
+                        <View style={[game_styles.footer, this.footerBorder(this.state.bgColor), this.headerFooterColor(this.state.bgColor)]}>
                         { this.state.showHintButton &&
                             <View style={game_styles.hint_button} onStartShouldSetResponder={() => { this.giveHint(this.state.nextFrag) }}>
                                 <Text style={game_styles.hint_text}>hint</Text>
@@ -884,7 +916,7 @@ class Game extends Component {
                         </View>
                         }
                         { this.state.showNextArrow &&
-                        <View style={game_styles.next_arrow}>
+                        <View style={game_styles.next_arrow} onStartShouldSetResponder={() => { this.nextVerse() }} >
                             <Image source={this.state.arrowImage}/>
                         </View>
                         }
