@@ -110,9 +110,9 @@ const KEY_Verses = 'versesKey';
 const KEY_Time = 'timeKey';
 const KEY_solvedTP = 'solvedTP';
 const KEY_ratedTheApp = 'ratedApp';
-var homeData = [];
-var dsArray = [];
-var solvedTodayOrNot = false;
+let homeData = [];
+let dsArray = [];
+let solvedTodayOrNot = false;
 
 
 class Home extends Component{
@@ -458,19 +458,19 @@ class Home extends Component{
         };
     }
     getTitle(title, numVerses, index){
-        var appendNum = (parseInt(index, 10) > 19)?'  ' + numVerses:'';
-        var titleToReturn = (title.indexOf('*') > -1)?title.substring(1):title;
+        let appendNum = (parseInt(index, 10) > 19)?'  ' + numVerses:'';
+        let titleToReturn = (title.indexOf('*') > -1)?title.substring(1):title;
         titleToReturn = titleToReturn + appendNum;
         return titleToReturn;
     }
     onSelect(index, title, bg, productID) {
 
-        //purchase code here
+        //send to stores
 
-        var theDestination = 'daily';
-        var gripeText = '';
-        var useColors = '';
-        var bgColorToSend = '';
+        let theDestination = 'collection';
+        let gripeText = '';
+        let useColors = '';
+        let bgColorToSend = '';
 
         switch(title){
             case 'Today\'s Verse':
@@ -500,13 +500,13 @@ class Home extends Component{
                     passProps: {
                         homeData: this.state.homeData,
                         daily_solvedArray: dsArray,
-                        title: title,
+                        title: theTitle,
                         todayFull: this.state.todayFull,
                         gripeText: gripeText,
                         dataElement: index,
                         isPremium: this.state.isPremium,
                         hasRated: this.state.hasRated,
-                        bgColor: '#795959'
+                        bgColor: bg//'#795959'
                     },
                 });
                 return;
