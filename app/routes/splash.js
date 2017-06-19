@@ -20,7 +20,7 @@ var nowISO = 0;
 var tonightMidnight = 0;
 const bonuses = [['500', 'Welcome +500', '3', '#620887'], ['1500', 'Achiever +1500', '5', '#f4ce57'], ['2500', 'Talented +2500', '10', '#f2404c'], ['5000', 'Skilled +5000', '10', '#0817a2'], ['7500', 'Seasoned +7500', '10', '#6e097d'], ['10000', 'Expert +10,000', '10', '#f5eaf6'], ['100000000000', 'TooMuch', '1', '#000000']];
 const KEY_Premium = 'premiumOrNot';
-const KEY_Puzzles = 'puzzlesKey';
+const KEY_Verses = 'versesKey';
 const KEY_SeenStart = 'seenStartKey';
 const KEY_Notifs = 'notifsKey';
 const KEY_NotifTime = 'notifTimeKey';
@@ -28,7 +28,7 @@ const KEY_Score = 'scoreKey';
 const KEY_NextBonus = 'bonusKey';
 const {width, height} = require('Dimensions').get('window');
 import { normalize }  from '../config/pixelRatio';
-//'ws://52.52.199.138:80/websocket'; <= bbg3...publication AllData, collections data, data1, data2, details, puzzles, text, users; PuzzApp
+//'ws://52.52.199.138:80/websocket'; <= bbg3...publication AllData, collections data, data1, data2, details, verses, text, users; PuzzApp
 //'ws://52.52.205.96:80/websocket'; <= Publications...publication AllData, collections dataA...dataZ; MeteorApp
 //'ws://10.0.0.207:3000/websocket'; <= localhost
 var METEOR_URL = 'ws://52.52.205.96:80/websocket';
@@ -67,28 +67,28 @@ class SplashScreen extends Component {
             })
         this.gotoScene('home', initialData)
 	}
-    getData(dataArray, sNum){//retrieve server data here, sNum is offset number for daily puzzles;
+    getData(dataArray, sNum){//retrieve server data here, sNum is offset number for daily verses;
         return new Promise(
             function (resolve, reject) {
                 const handle = Meteor.subscribe('AllData', {
                     onReady: function () {
-                        const d_puzzles = Meteor.collection('dataD').find();//dataD => daily puzzles and puzzleData object
+                        const d_verses = Meteor.collection('dataD').find();//dataD => daily verses and homeData object
                         var pd = [];
                         var puzzStringArray = [];
-                        d_puzzles.forEach(function (row) {
-                            if(parseInt(row.pnum, 10) == 0){//get puzzleData object here
+                        d_verses.forEach(function (row) {
+                            if(parseInt(row.pnum, 10) == 0){//get homeData object here
                                 pd = row.data;
                             }
-                            if((parseInt(row.pnum, 10) >= sNum) && (parseInt(row.pnum, 10) < (sNum + 31))){//daily puzzles here
+                            if((parseInt(row.pnum, 10) >= sNum) && (parseInt(row.pnum, 10) < (sNum + 31))){//daily verses here
                                 puzzStringArray.unshift(row.puzz);
                             }
                         });
                         pd.length = 24;//truncate extra elements, which shouldn't be necessary but is...
-                        pd[16].puzzles[0] = puzzStringArray[0];//load today's puzzle
+                        pd[16].verses[0] = puzzStringArray[0];//load today's verse
                         puzzStringArray.shift();
                         for(var jj=0; jj<puzzStringArray.length; jj++){
-                            pd[18].puzzles[jj] = puzzStringArray[jj];//load last 30 days
-                            if(jj < 3){pd[17].puzzles[jj] = puzzStringArray[jj];}//load last 3 days
+                            pd[18].verses[jj] = puzzStringArray[jj];//load last 30 days
+                            if(jj < 3){pd[17].verses[jj] = puzzStringArray[jj];}//load last 3 days
                         }
                         for (let addExtra=24; addExtra<dataArray.length; addExtra++){//add any extra packs onto data array
                             pd.push(dataArray[addExtra]);
@@ -102,29 +102,29 @@ class SplashScreen extends Component {
                 });
         });
     }
-    getPuzzlePack(name, ID, puzzleData){//retrieve from server set(s) of puzzles...combo pack if name is string array, single if string, bonus if number
+    getCollection(name, ID, homeData){//retrieve from server set(s) of verses...combo pack if name is string array, single if string, bonus if number
         return new Promise(
             function (resolve, reject) {
                 if (Array.isArray(name)){//combo pack
                     var title = [];
                     var index = [];
-                    var num_puzzles = [];
+                    var num_verses = [];
                     var solved = [[],[],[]];
                     var product_id = '';
                     var bg_color = [];
-                    var puzzles = [[],[],[]];
+                    var verses = [[],[],[]];
                     var combinedName = name[0] + ' ' + name[1] + ' ' + name[2];
                     for (var k = 0; k < 3; k++){
-                        for (var b = 0; b < puzzleData.length; b++){
-                            var obj = puzzleData[b];
+                        for (var b = 0; b < homeData.length; b++){
+                            var obj = homeData[b];
                             for (var el in obj) {
                                 if (el == 'data'){
                                     for(var j=0; j<obj[el].length; j++){
-                                        if(puzzleData[b].data[j].name == name[k]){
-                                            title[k] = puzzleData[b].data[j].name;
-                                            index[k] = (puzzleData.length + k).toString();
-                                            num_puzzles[k] = puzzleData[b].data[j].num_puzzles;
-                                            bg_color[k] = puzzleData[b].data[j].color;
+                                        if(homeData[b].data[j].name == name[k]){
+                                            title[k] = homeData[b].data[j].name;
+                                            index[k] = (homeData.length + k).toString();
+                                            num_verses[k] = homeData[b].data[j].num_verses;
+                                            bg_color[k] = homeData[b].data[j].color;
                                             continue;
                                         }
                                     }
@@ -133,43 +133,43 @@ class SplashScreen extends Component {
                         }
                     }
                     for (var sol=0; sol<3; sol++){
-                        var arr = new Array(parseInt(num_puzzles[sol])).fill(0);
+                        var arr = new Array(parseInt(num_verses[sol])).fill(0);
                         solved[sol] = arr;
                     }
 
                     const subs = Meteor.subscribe('AllData', {
                         onReady: function () {
-                                const d_puzzles = Meteor.collection('dataC').find({pack: combinedName});
-                                var puzzleCount = 0;
+                                const d_verses = Meteor.collection('dataC').find({pack: combinedName});
+                                var verseCount = 0;
                                 var whichOfThe3 = 0;
-                                for (var key in d_puzzles) {
-                                    var obj = d_puzzles[key];
+                                for (var key in d_verses) {
+                                    var obj = d_verses[key];
                                     for (var prop in obj) {
                                         if(prop=='puzz'){
-                                            puzzles[whichOfThe3].push(obj[prop]);
-                                            puzzleCount++;
+                                            verses[whichOfThe3].push(obj[prop]);
+                                            verseCount++;
                                         }
-                                        if (puzzleCount == num_puzzles[whichOfThe3]){
+                                        if (verseCount == num_verses[whichOfThe3]){
                                             whichOfThe3++;
-                                            puzzleCount = 0;
+                                            verseCount = 0;
                                         }
                                     }
                                 }
                                 for (var push = 0; push < 3; push++){
-                                    puzzleData.push({
+                                    homeData.push({
                                         title: title[push],
                                         index: index[push],
                                         type: 'mypack',
                                         show: 'true',
-                                        num_puzzles: num_puzzles[push],
+                                        num_verses: num_verses[push],
                                         num_solved: '0',
                                         solved: solved[push],
                                         product_id: ID,
                                         bg_color: bg_color[push],
-                                        puzzles: puzzles[push]
+                                        verses: verses[push]
                                     });
                                 }
-                                resolve(puzzleData);
+                                resolve(homeData);
                             },
                         onStop: function () {
                             window.alert('Sorry, can\'t connect to our server right now');
@@ -180,21 +180,21 @@ class SplashScreen extends Component {
                     var strName = '';
                     var title = '';
                     var index = '';
-                    var num_puzzles = '';
+                    var num_verses = '';
                     var solved = [];
                     var bg_color = '';
-                    var puzzles = [];
+                    var verses = [];
                     if(typeof name == 'string'){//regular pack
                         strName = name;
-                        for (var k = 0; k < puzzleData.length; k++){
-                        var obj = puzzleData[k];
+                        for (var k = 0; k < homeData.length; k++){
+                        var obj = homeData[k];
                             for (var el in obj) {
                                 if (el == 'data'){
                                     for(var j=0; j<obj[el].length; j++){
-                                        if(puzzleData[k].data[j].name == name){
-                                            title = puzzleData[k].data[j].name;
-                                            num_puzzles = puzzleData[k].data[j].num_puzzles;
-                                            bg_color = puzzleData[k].data[j].color;
+                                        if(homeData[k].data[j].name == name){
+                                            title = homeData[k].data[j].name;
+                                            num_verses = homeData[k].data[j].num_verses;
+                                            bg_color = homeData[k].data[j].color;
                                             continue;
                                         }
                                     }
@@ -206,39 +206,39 @@ class SplashScreen extends Component {
                         for(var bb=0; bb<bonuses.length; bb++){
                             if (bonuses[bb][0] == strName){
                                 title = bonuses[bb][1];
-                                num_puzzles = bonuses[bb][2];
+                                num_verses = bonuses[bb][2];
                                 bg_color = bonuses[bb][3];
                                 continue;
                             }
                         }
                     }
-                    var arr = new Array(parseInt(num_puzzles)).fill(0);
+                    var arr = new Array(parseInt(num_verses)).fill(0);
                     solved = arr;
 
                     const subs = Meteor.subscribe('AllData', {
                         onReady: function () {
-                            const d_puzzles = Meteor.collection('dataP').find({pack: strName});
-                            for (var key in d_puzzles) {
-                                var obj = d_puzzles[key];
+                            const d_verses = Meteor.collection('dataP').find({pack: strName});
+                            for (var key in d_verses) {
+                                var obj = d_verses[key];
                                 for (var prop in obj) {
                                     if(prop=='puzz'){
-                                        puzzles.push(obj[prop]);
+                                        verses.push(obj[prop]);
                                     }
                                 }
                             }
-                            puzzleData.push({
+                            homeData.push({
                                 title: title,
-                                index: puzzleData.length.toString(),
+                                index: homeData.length.toString(),
                                 type: 'mypack',
                                 show: 'true',
-                                num_puzzles: num_puzzles,
+                                num_verses: num_verses,
                                 num_solved: '0',
                                 solved: solved,
                                 product_id: ID,
                                 bg_color: bg_color,
-                                puzzles: puzzles
+                                verses: verses
                             });
-                            resolve(puzzleData);
+                            resolve(homeData);
                         },
                         onStop: function () {
                             window.alert('Sorry, can\'t connect to our server right now');
@@ -249,7 +249,33 @@ class SplashScreen extends Component {
         });
     }
     gotoScene(whichScene, homeData){
-
+        var myPackArray = [];
+        var str = '';
+        for (var key in homeData){
+            if (homeData[key].type == 'mypack'){
+                myPackArray.push(homeData[key].title);
+            }
+        }
+        var levels = [3,4,5,6];//Easy, Moderate, Hard, Theme
+        for(var i=0; i<4; i++){
+            var titleIndex = -1;
+            var rnd = Array.from(new Array(homeData[levels[i]].data.length), (x,i) => i);
+            rnd = shuffleArray(rnd);
+            for (var r=0; r<homeData[levels[i]].data.length; r++){
+                if (myPackArray.indexOf(homeData[levels[i]].data[rnd[r]].name) < 0){
+                    titleIndex = rnd[r];
+                    break;
+                }
+            }
+            if (titleIndex !== -1){
+                homeData[20 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
+                homeData[20 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
+                homeData[20 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
+                homeData[20 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
+            }else{
+                homeData[20 + i].show = 'false';
+            }
+        }
         this.props.navigator.replace({
             id: whichScene,
             passProps: {
