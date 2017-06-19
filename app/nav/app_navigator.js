@@ -9,6 +9,8 @@ const Settings = require('../routes/settings');
 const About = require('../routes/about');
 const Social = require('../routes/social');
 const Game = require('../routes/game');
+const Daily = require('../routes/daily');
+const Bounce = require('../routes/bounce');
 
 class AppNavigator extends React.Component {
     constructor(props) {
@@ -30,6 +32,10 @@ class AppNavigator extends React.Component {
                 return Social;
             case 'game':
                 return Game;
+            case 'daily':
+                return Daily;
+            case 'bounce':
+                return Bounce;
 
             // Add more ids here
         }
