@@ -10,6 +10,7 @@ const About = require('../routes/about');
 const Social = require('../routes/social');
 const Game = require('../routes/game');
 const Daily = require('../routes/daily');
+const Collection = require('../routes/collection');
 const Bounce = require('../routes/bounce');
 
 class AppNavigator extends React.Component {
@@ -34,6 +35,8 @@ class AppNavigator extends React.Component {
                 return Game;
             case 'daily':
                 return Daily;
+            case 'collection':
+                return Collection;
             case 'bounce':
                 return Bounce;
 
