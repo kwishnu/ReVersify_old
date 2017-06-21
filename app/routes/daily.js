@@ -41,7 +41,6 @@ class Daily extends Component{
         this.handleHardwareBackButton = this.handleHardwareBackButton.bind(this);
     }
     componentDidMount() {
-    console.log(this.props.daily_solvedArray);
         homeData = this.props.homeData;
         AppState.addEventListener('change', this.handleAppStateChange);
         BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
@@ -103,12 +102,12 @@ class Daily extends Component{
                         }
                     }
                     if (titleIndex !== -1){
-                        homeData[20 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
-                        homeData[20 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
-                        homeData[20 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
-                        homeData[20 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
+                        homeData[21 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
+                        homeData[21 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
+                        homeData[21 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
+                        homeData[21 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
                     }else{
-                        homeData[20 + i].show = 'false';
+                        homeData[21 + i].show = 'false';
                     }
                 }
                 this.props.navigator.replace({
