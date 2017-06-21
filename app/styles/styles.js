@@ -22,7 +22,11 @@ module.exports = StyleSheet.create({
         backgroundColor: '#ffffff',
     },
     verse_text_large: {
-        color: '#000',
+        color: '#000000',
+        fontSize: normalizeFont(configs.LETTER_SIZE * 0.11),
+    },
+    verse_text_white: {
+        color: '#ffffff',
         fontSize: normalizeFont(configs.LETTER_SIZE * 0.11),
     },
     answer_text: {
