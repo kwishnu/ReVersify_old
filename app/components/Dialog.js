@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     container: {
-        width: height/3.5,
+        width: height/3,
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
