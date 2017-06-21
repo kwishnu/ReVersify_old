@@ -13,6 +13,8 @@ const KEY_Sound = 'soundKey';
 const KEY_Verses = 'versesKey';
 const KEY_solvedTP = 'solvedTP';
 const KEY_daily_solved_array = 'solved_array';
+const KEY_Time = 'timeKey';
+
 let dsArray = [];
 let homeData = {};
 let Sound = require('react-native-sound');
@@ -148,6 +150,7 @@ class Game extends Component {
             showHintButton: true,
             showFB: true,
             showTwitter: true,
+            showFavorites: true,
             letterImage: require('../images/letters/i.png'),
             arrowImage: require('../images/arrowforward.png'),
             scaleXY: new Animated.Value(0),
@@ -158,7 +161,7 @@ class Game extends Component {
         this.handleHardwareBackButton = this.handleHardwareBackButton.bind(this);
     }
     componentDidMount() {
-
+        if (this.props.dataElement == 20)this.setState({showFavorites: false});
         BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
         AppState.addEventListener('change', this.handleAppStateChange);
         homeData = this.props.homeData;
@@ -253,6 +256,7 @@ class Game extends Component {
             });
         }
     }
+
     assignWordsToRows(verse){
         let layout = [[], [], [], [], [], [], [], []];
         let verseArray = verse.split(' ');
@@ -451,6 +455,26 @@ class Game extends Component {
 
     }
     closeGame(where){
+        if (where == 'favorites'){
+            let verseArray = [];
+            for (let v=0; v< this.state.homeData[20].verses.length; v++){
+                verseArray.push(v + '**' + this.state.homeData[20].verses[v]);
+            }
+            this.props.navigator.replace({
+                id: 'favorites',
+                passProps: {
+                    homeData: this.state.homeData,
+                    daily_solvedArray: dsArray,
+                    title: 'My Favorites',
+                    dataSource: verseArray,
+                    dataElement: '20',
+                    isPremium: this.state.isPremium,
+                    hasRated: this.state.hasRated,
+                    bgColor: '#cfe7c2'
+                },
+            });
+            return;
+        }
         let myPackArray = [];
         let str = '';
         for (let key in homeData){
@@ -470,12 +494,12 @@ class Game extends Component {
                 }
             }
             if (titleIndex !== -1){
-                homeData[20 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
-                homeData[20 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
-                homeData[20 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
-                homeData[20 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
+                homeData[21 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
+                homeData[21 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
+                homeData[21 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
+                homeData[21 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
             }else{
-                homeData[20 + i].show = 'false';
+                homeData[21 + i].show = 'false';
             }
         }
         this.props.navigator.replace({
@@ -598,7 +622,7 @@ class Game extends Component {
             }
         }else if(this.props.fromWhere == 'home'){
             dsArray[this.state.index] = '1';
-        }else{//from daily
+        }else if(this.props.fromWhere == 'daily'){
             dsArray[this.state.index + 1] = '1';
             this.setState({daily_solvedArray: dsArray});
         }
@@ -619,15 +643,21 @@ class Game extends Component {
         if(!this.state.doneWithVerse && this.state.useSounds == true){plink1.play();}
     }
     footerBorder(color) {
-        let darkerColor = shadeColor(color, 5);
+        let bgC = this.props.bgColor;
+        let darkerColor = (bgC == '#cfe7c2')?shadeColor('#2B0B30', 5):shadeColor(color, -40);
+//        let darkerColor = shadeColor(color, 5);
         return {borderColor: darkerColor};
     }
     headerBorder(color) {
-        let darkerColor = shadeColor(color, 5);
+        let bgC = this.props.bgColor;
+        let darkerColor = (bgC == '#cfe7c2')?shadeColor('#2B0B30', 5):shadeColor(color, -40);
+//        let darkerColor = shadeColor(color, 5);
         return {borderColor: darkerColor};
     }
     headerFooterColor(color) {
-        let darkerColor = shadeColor(color, -40);
+        let bgC = this.props.bgColor;
+        let darkerColor = (bgC == '#cfe7c2')? '#2B0B30':shadeColor(color, -40);
+//        let darkerColor = shadeColor(color, -40);
         return {backgroundColor: darkerColor};
     }
     giveHint(frag){
@@ -771,7 +801,20 @@ class Game extends Component {
             default:
         }
     }
-
+    addToFavorites(){
+        let num = (parseInt(homeData[20].num_verses, 10) + 1) + '';
+        homeData[20].num_verses = num;
+//        homeData[20].num_solved = num;
+        homeData[20].verses.push(this.props.homeData[this.props.dataElement].verses[this.props.index]);
+//        homeData[20].solved.push(1);
+        homeData[20].show = 'true';
+        try {
+            AsyncStorage.setItem(KEY_Verses, JSON.stringify(homeData));
+            Alert.alert('Verse Added', this.state.chapterVerse + ' added to Favorites' );
+        } catch (error) {
+            window.alert('AsyncStorage error: ' + error.message);
+        }
+    }
   render() {
         const rotateY = this.flip.interpolate({
             inputRange: [0, 1],
@@ -913,7 +956,9 @@ class Game extends Component {
                             { this.state.showTwitter &&
                             <Animated.Image style={[ game_styles.button_image, buttonsStyle ]} source={require('../images/buttontwitter.png')}/>
                             }
-                            <Animated.Image style={[ {width: 65, height: 65, margin: 1}, buttonsStyle ]} source={require('../images/favorites.png')}/>
+                            { this.state.showFavorites &&
+                            <Animated.Image style={[ {width: 65, height: 65, margin: 1}, buttonsStyle ]} source={require('../images/favorites.png')} onStartShouldSetResponder={() => { this.addToFavorites() }} />
+                            }
                         </View>
                         }
                         { this.state.showNextArrow &&
