@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Image, TouchableHighlight, TouchableOpacity, Li
 import moment from 'moment';
 import SectionHeader from '../components/SectionHeader';
 import Button from '../components/Button';
-import ContentsDialog from '../components/ContentsDialog';
+import Dialog from '../components/Dialog';
 import Meteor from 'react-native-meteor';
 import configs from '../config/configs';
 import { normalize, normalizeFont }  from '../config/pixelRatio';
@@ -264,28 +264,28 @@ class Home extends Component{
     }
     handleAppStateChange=(appState)=>{
         if(appState == 'active'){
-//            var timeNow = moment().valueOf();
-//            AsyncStorage.getItem(KEY_Time).then((storedTime) => {
-//                var sT = JSON.parse(storedTime);
-//                var diff = (timeNow - sT)/1000;
-//                if(diff>7200){
-//                    try {
-//                        AsyncStorage.setItem(KEY_Time, JSON.stringify(timeNow));
-//                    } catch (error) {
-//                        window.alert('AsyncStorage error: ' + error.message);
-//                    }
-//                    this.props.navigator.replace({
-//                        id: 'splash',
-//                        passProps: {motive: 'initialize'}
-//                    });
-//                }else{
-//                    try {
-//                        AsyncStorage.setItem(KEY_Time, JSON.stringify(timeNow));
-//                    } catch (error) {
-//                        window.alert('AsyncStorage error: ' + error.message);
-//                    }
-//                }
-//            });
+            var timeNow = moment().valueOf();
+            AsyncStorage.getItem(KEY_Time).then((storedTime) => {
+                var sT = JSON.parse(storedTime);
+                var diff = (timeNow - sT)/1000;
+                if(diff>7200){
+                    try {
+                        AsyncStorage.setItem(KEY_Time, JSON.stringify(timeNow));
+                    } catch (error) {
+                        window.alert('AsyncStorage error: ' + error.message);
+                    }
+                    this.props.navigator.replace({
+                        id: 'splash',
+                        passProps: {motive: 'initialize'}
+                    });
+                }else{
+                    try {
+                        AsyncStorage.setItem(KEY_Time, JSON.stringify(timeNow));
+                    } catch (error) {
+                        window.alert('AsyncStorage error: ' + error.message);
+                    }
+                }
+            });
         }
     }
     toggle() {
@@ -467,6 +467,26 @@ class Home extends Component{
 
         //send to stores
 
+        if (index == '20'){//favorites
+            let verseArray = [];
+            for (let v=0; v< this.state.homeData[20].verses.length; v++){
+                verseArray.push(v + '**' + this.state.homeData[20].verses[v]);
+            }
+            this.props.navigator.replace({
+                id: 'favorites',
+                passProps: {
+                    homeData: this.state.homeData,
+                    daily_solvedArray: dsArray,
+                    title: 'My Favorites',
+                    dataSource: verseArray,
+                    dataElement: index,
+                    isPremium: this.state.isPremium,
+                    hasRated: this.state.hasRated,
+                    bgColor: '#cfe7c2'
+                },
+            });
+            return;
+        }
         let theDestination = 'collection';
         let gripeText = '';
         let useColors = '';
@@ -522,7 +542,7 @@ class Home extends Component{
                     window.alert('AsyncStorage error: ' + error.message);
                 }
             }
-            bgColorToSend = (useColors == 'true')?bg:'#055105';//#055105 default color
+            bgColorToSend = (useColors == 'true')?bg:'#cfe7c2';
             this.props.navigator.replace({
                 id: theDestination,
                 passProps: {
@@ -530,7 +550,6 @@ class Home extends Component{
                     daily_solvedArray: dsArray,
                     title: title,
                     todayFull: this.state.todayFull,
-                    gripeText: gripeText,
                     dataElement: index,
                     isPremium: this.state.isPremium,
                     hasRated: this.state.hasRated,
@@ -538,19 +557,15 @@ class Home extends Component{
                 },
             });
         });
-
-
-
-
     }
     showDialog(index, type){
-        if(index < 19)return;
+        if(index < 19 || index == 20)return;
         Vibration.vibrate(25);
         BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
         if(type == 'mypack' || type == 'solved'){
             let strSolvedOrNot = (type == 'solved')?'Move to My Collections':'Move to Completed';
             let sendToCompleted = (type == 'solved')?'false':'true';
-            let strOpenOrClose = (parseInt(homeData[index].num_solved, 10) < parseInt(homeData[index].num_verses, 10))?'Open all verses':'Open first only';
+            let strOpenOrClose = (parseInt(this.state.homeData[index].num_solved, 10) < parseInt(this.state.homeData[index].num_verses, 10))?'Open all verses':'Open first only';
             let openOrClose = (strOpenOrClose == 'Open all verses')? true:false;
 
             this.setState({ shouldShowDialog: true,
@@ -582,31 +597,31 @@ class Home extends Component{
                 return;
             case 1:
                 let whatToCallIt = (this.state.moveToCompleted == 'true')?'solved':'mypack';
-                homeData[this.state.indexSelected].type = whatToCallIt;
+                this.state.homeData[this.state.indexSelected].type = whatToCallIt;
                 break;
             case 2:
                 if(this.state.openClose){
-                    homeData[this.state.indexSelected].num_solved = homeData[this.state.indexSelected].num_verses;
+                    this.state.homeData[this.state.indexSelected].num_solved = this.state.homeData[this.state.indexSelected].num_verses;
                 }else{
-                    homeData[this.state.indexSelected].num_solved = '0';
+                    this.state.homeData[this.state.indexSelected].num_solved = '0';
                 }
                 break;
             case 3:
-                homeData[this.state.indexSelected].show = 'false';
+                this.state.homeData[this.state.indexSelected].show = 'false';
                 break;
             case 4:
-                for (let showVerses=19; showVerses<homeData.length; showVerses++){
-                    homeData[showVerses].show = 'true';
+                for (let showVerses=19; showVerses<this.state.homeData.length; showVerses++){
+                    this.state.homeData[showVerses].show = 'true';
                 }
                 break;
            }
             try {
-                AsyncStorage.setItem(KEY_Verses, JSON.stringify(homeData));
+                AsyncStorage.setItem(KEY_Verses, JSON.stringify(this.state.homeData));
             } catch (error) {
                 window.alert('AsyncStorage error: ' + error.message);
             }
-            var { dataBlob, sectionIds, rowIds } = formatData(homeData);
-            this.setState({ homeData: homeData,
+            var { dataBlob, sectionIds, rowIds } = formatData(this.state.homeData);
+            this.setState({ homeData: this.state.homeData,
                             dataSource: ds.cloneWithRowsAndSections(dataBlob, sectionIds, rowIds)
             });
     }
@@ -626,7 +641,7 @@ class Home extends Component{
                             <Button style={{left: height*.02}} onPress={ () => this.toggle() }>
                                 <Image source={this.state.menuImage} style={ { width: normalize(height/15), height: normalize(height/15) } } />
                             </Button>
-                            <Image source={ require('../images/logo2.png') } style={ { width: normalize(height * .25), height: normalize(height * .07) } } />
+                            <Image source={ require('../images/logo2.png') } style={ { width: normalize(height * .2), height: normalize(height * .07) } } />
                             <Button style={{right: height*.02}}>
                                 <Image source={ require('../images/noimage.png') } style={ { width: normalize(height/15), height: normalize(height/15) } } />
                             </Button>
@@ -653,7 +668,7 @@ class Home extends Component{
                              />
                         </View>
                         {this.state.shouldShowDialog &&
-                                <ContentsDialog showFull={this.state.showFullDialog} onPress={(num)=>{ this.onDialogSelect(num); }} item1={this.state.strWhereToSend} item2={this.state.strOpenVerses} item3={'Hide from Contents'} item4={'Show hidden collections'} />
+                                <Dialog showFull={this.state.showFullDialog} onPress={(num)=>{ this.onDialogSelect(num); }} item1={this.state.strWhereToSend} item2={this.state.strOpenVerses} item3={'Hide from Contents'} item4={'Show hidden collections'} />
                         }
                      </View>
                 </SideMenu>
