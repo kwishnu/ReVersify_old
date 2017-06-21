@@ -78,18 +78,18 @@ module.exports = class Settings extends Component {
                     <Button style={{left: height*.02}} onPress={ () => this.goSomewhere() }>
                         <Image source={ require('../images/arrowback.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                     </Button>
-                    <Text style={styles.header_text} >About ReVersify</Text>
+                    <Text style={styles.header_text} >About  reVersify</Text>
                     <Button style={{right: height*.02}}>
                         <Image source={ require('../images/noimage.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                     </Button>
                 </View>
                 <View style={ about_styles.about_container }>
-                    <Image source={ require('../images/logo2.png') } style={ { width: normalize(height * .29), height: normalize(height * .07) } } />
+                    <Image source={ require('../images/logo2.png') } style={ { width: normalize(height * .29), height: normalize(height * .125) } } />
                     <View style={about_styles.parameter_container}>
                         <View style={about_styles.divider}>
                         </View>
                     </View>
-                    <Text style={about_styles.text}>{'ReVersify   v.' + configs.versionName}</Text>
+                    <Text style={about_styles.text}>{'reVersify   v.' + configs.versionName}</Text>
                     <Text style={about_styles.finePrint}>All rights reserved</Text>
                     <Text style={about_styles.finePrint}>baked beans software</Text>
                     <Text style={about_styles.finePrint}>{'\u00A9' + ' ' + year}</Text>
