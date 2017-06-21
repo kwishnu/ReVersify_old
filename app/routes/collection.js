@@ -118,12 +118,10 @@ class Collection extends Component{
         this.setState({isLoading: false});
     }
     setColors(){
-        var bgC = this.props.bgColor;//
-        var fieldColor = shadeColor(bgC, 10);
-        var headColor =  shadeColor(bgC, -20);
-        var titletextColor = invertColor(headColor, true);
-        titletextColor = (bgC == '#055105')?'#9eacda':titletextColor;
-console.log(fieldColor + ' ' + headColor);
+        let bgC = this.props.bgColor;
+        let fieldColor = (bgC == '#cfe7c2')? '#cfe7c2':shadeColor(bgC, 10);
+        let headColor = (bgC == '#cfe7c2')? '#2B0B30':shadeColor(bgC, -20);
+        let titletextColor = (bgC == '#cfe7c2')? '#9eacda':invertColor(headColor, true);
         this.setState({
             bgColor: fieldColor,
             headerColor: headColor,
@@ -154,12 +152,12 @@ console.log(fieldColor + ' ' + headColor);
                     }
                 }
                 if (titleIndex !== -1){
-                    homeData[20 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
-                    homeData[20 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
-                    homeData[20 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
-                    homeData[20 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
+                    homeData[21 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
+                    homeData[21 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
+                    homeData[21 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
+                    homeData[21 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
                 }else{
-                    homeData[20 + i].show = 'false';
+                    homeData[21 + i].show = 'false';
                 }
             }
             try {
@@ -407,6 +405,8 @@ console.log(fieldColor + ' ' + headColor);
         });
     }
     onSelect(index) {
+        let bgC = this.props.bgColor;
+        let newColor = (bgC == '#000000')? '#cfe7c2':this.props.bgColor;
         if(index>parseInt(this.props.homeData[this.props.dataElement].num_solved, 10))return;
         this.props.navigator.replace({
             id: 'game',
@@ -419,7 +419,7 @@ console.log(fieldColor + ' ' + headColor);
                 dataElement: this.props.dataElement,
                 isPremium: this.props.isPremium,
                 hasRated: this.props.hasRated,
-                bgColor: this.props.bgColor,
+                bgColor: newColor,
                 myTitle: this.props.title
             },
        });
