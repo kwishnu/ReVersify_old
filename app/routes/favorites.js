@@ -512,7 +512,7 @@ class Favorites extends Component{
 
                     <View style={ [collection_styles.container, {backgroundColor: this.state.bgColor}, this.darkBorder(this.state.bgColor)] }>
                         <View style={ [collection_styles.header, {backgroundColor: this.state.headerColor}]}>
-                            <Button style={{left: height*.02}} onPress={ () => this.handleHardwareBackButton() }>
+                            <Button style={collection_styles.button} onPress={ () => this.handleHardwareBackButton() }>
                                 <Image source={ require('../images/arrowback.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                             </Button>
                             <Text style={{fontSize: configs.LETTER_SIZE * 0.7, color: this.state.titleColor}} >{this.props.title}</Text>
@@ -556,6 +556,20 @@ const collection_styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    header: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: window.width,
+        marginBottom: 6,
+    },
+    button: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: normalize(height*0.077),
+        height: normalize(height*0.077)
+    },
     listview: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -566,14 +580,6 @@ const collection_styles = StyleSheet.create({
         flex: 11,
         paddingLeft: 6,
         paddingRight: 6,
-    },
-    header: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        width: window.width,
-        marginBottom: 6,
     },
     launcher: {
         width: width*.98,

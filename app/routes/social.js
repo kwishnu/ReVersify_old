@@ -77,7 +77,7 @@ module.exports = class Social extends Component {
         return (
                 <View style={[social_styles.container, {borderColor: this.props.color}]}>
                     <View style={ [social_styles.header, {backgroundColor: this.props.color}] }>
-                        <Button style={{left: height*.02}} onPress={ () => this.handleHardwareBackButton() }>
+                        <Button style={social_styles.button} onPress={ () => this.handleHardwareBackButton() }>
                             <Image source={ require('../images/arrowback.png') } style={ { width: normalize(height*.07), height: normalize(height*.07) } } />
                         </Button>
                         <Text style={styles.header_text} >{this.props.title}
@@ -93,7 +93,7 @@ module.exports = class Social extends Component {
                         <Text style={social_styles.body_text}>{text}</Text>
                     </View>
                     <View style={ social_styles.button_container }>
-                        <Button style={[social_styles.button, {backgroundColor: this.props.color}]} onPress={()=>{this.linkToUrl()}}>
+                        <Button style={[social_styles.ok_button, {backgroundColor: this.props.color}]} onPress={()=>{this.linkToUrl()}}>
                             <Text style={social_styles.button_text}>OK</Text>
                         </Button>
                     </View>
@@ -115,6 +115,12 @@ const social_styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         width: window.width,
+    },
+    button: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: normalize(height*0.077),
+        height: normalize(height*0.077)
     },
     image_container: {
         flex: 24,
@@ -144,7 +150,7 @@ const social_styles = StyleSheet.create({
         textAlign: 'center',
         lineHeight: configs.LINE_HEIGHT,
     },
-    button: {
+    ok_button: {
         height: height * 0.08,
         width: height * 0.25,
         justifyContent: 'center',

@@ -335,7 +335,7 @@ class Daily extends Component{
                         onChange={ (isOpen) => this.updateMenuState(isOpen) }>
                 <View style={ [container_styles.container, this.border('#070f4e')] }>
                     <View style={ container_styles.header }>
-                        <Button style={{left: 10}} onPress={ () => this.handleHardwareBackButton() }>
+                        <Button style={container_styles.button} onPress={ () => this.handleHardwareBackButton() }>
                             <Image source={ require('../images/arrowback.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                         </Button>
                         <Text style={styles.header_text} >{this.props.title}</Text>
@@ -373,6 +373,20 @@ const container_styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#cfe7c2',
     },
+    header: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: width,
+        backgroundColor: '#000000',
+    },
+    button: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: normalize(height*0.077),
+        height: normalize(height*0.077)
+    },
     center_text_view: {
         flex: 1,
         width: width,
@@ -394,14 +408,6 @@ const container_styles = StyleSheet.create({
         flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'space-around',
-    },
-    header: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        width: width,
-        backgroundColor: '#000000',
     },
     tiles_container: {
         flex: 11,

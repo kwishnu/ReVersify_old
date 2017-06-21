@@ -638,7 +638,7 @@ class Home extends Component{
                 <SideMenu menu={ menu } isOpen={ this.state.isOpen } onChange={ (isOpen) => this.updateMenuState(isOpen) }>
                     <View style={ [container_styles.container, this.border('#070f4e')] }>
                         <View style={ container_styles.header }>
-                            <Button style={{left: height*.02}} onPress={ () => this.toggle() }>
+                            <Button style={container_styles.button} onPress={ () => this.toggle() }>
                                 <Image source={this.state.menuImage} style={ { width: normalize(height/15), height: normalize(height/15) } } />
                             </Button>
                             <Image source={ require('../images/logo2.png') } style={ { width: normalize(height * .2), height: normalize(height * .07) } } />
@@ -710,6 +710,12 @@ const container_styles = StyleSheet.create({
         width: window.width,
         backgroundColor: '#000000',
     },
+    button: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: normalize(height*0.077),
+        height: normalize(height*0.077)
+    },
     total_score: {
         position: 'absolute',
         justifyContent: 'center',
@@ -735,7 +741,7 @@ const container_styles = StyleSheet.create({
         borderRadius: BORDER_RADIUS,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 6,
+        marginTop: 4,
         marginBottom: 1,
     },
     launcher_text: {

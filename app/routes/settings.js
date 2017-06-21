@@ -243,7 +243,7 @@ module.exports = class Settings extends Component {
             return (
                 <View style={settings_styles.container}>
                     <View style={ settings_styles.header }>
-                        <Button style={{left: height*.02}} onPress={ () => this.handleHardwareBackButton() }>
+                        <Button style={settings_styles.button} onPress={ () => this.handleHardwareBackButton() }>
                             <Image source={ require('../images/arrowback.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                         </Button>
                         <Text style={styles.header_text} >Settings
@@ -361,6 +361,12 @@ const settings_styles = StyleSheet.create({
         padding: 6,
         width: width,
         backgroundColor: '#000000',
+    },
+    button: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: normalize(height*0.077),
+        height: normalize(height*0.077)
     },
     settings_container: {
         flex: 15,

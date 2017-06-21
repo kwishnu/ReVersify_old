@@ -162,6 +162,7 @@ class Game extends Component {
     }
     componentDidMount() {
         if (this.props.dataElement == 20)this.setState({showFavorites: false});
+        this.setPanelColors();
         BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
         AppState.addEventListener('change', this.handleAppStateChange);
         homeData = this.props.homeData;
@@ -229,6 +230,11 @@ class Game extends Component {
             this.closeGame(this.props.fromWhere);
         }
         return true;
+    }
+    setPanelColors(){
+        let darkerPanel = shadeColor(this.props.bgColor, -10);
+        let darkerBorder = shadeColor(this.props.bgColor, -30);
+        this.setState({panelBgColor: darkerPanel, panelBorderColor: darkerBorder});
     }
     handleAppStateChange=(appState)=>{
         if(appState == 'active'){
@@ -727,7 +733,7 @@ class Game extends Component {
         let bool = false;
         if(!this.state.showingVerse){
             chapterVerseStr = this.state.chapterVerse;
-            pBgC = '#333333';
+            pBgC = '#555555';
             pBC = '#000000';
             bool = true;
             this.setState({panelText: chapterVerseStr,
@@ -841,11 +847,11 @@ class Game extends Component {
                 <View style={{flex: 1}}>
                     <View style={[game_styles.container, {backgroundColor: this.state.bgColor}]}>
                         <View style={[game_styles.header, this.headerBorder(this.state.bgColor), this.headerFooterColor(this.state.bgColor)]}>
-                            <Button style={{left: height*.02}} onPress={ () => this.closeGame(this.props.fromWhere) }>
+                            <Button style={game_styles.button} onPress={() => this.closeGame(this.props.fromWhere)}>
                                 <Image source={ require('../images/close.png') } style={{ width: normalize(height*0.07), height: normalize(height*0.07) }} />
                             </Button>
                             <Text style={styles.header_text} >{ this.props.title }</Text>
-                            <Button style={{right: height*.02}} onPress={ () => this.showDropdown()}>
+                            <Button style={game_styles.button} onPress={ () => this.showDropdown()}>
                                 <Image source={ require('../images/dropdown.png') } style={{ width: normalize(height*0.07), height: normalize(height*0.07) }} />
                             </Button>
                         </View>
@@ -943,8 +949,10 @@ class Game extends Component {
                         </View>
                         <View style={[game_styles.footer, this.footerBorder(this.state.bgColor), this.headerFooterColor(this.state.bgColor)]}>
                         { this.state.showHintButton &&
-                            <View style={game_styles.hint_button} onStartShouldSetResponder={() => { this.giveHint(this.state.nextFrag) }}>
-                                <Text style={game_styles.hint_text}>hint</Text>
+                            <View style={game_styles.hint_container} onStartShouldSetResponder={() => { this.giveHint(this.state.nextFrag) }}>
+                                <View style={game_styles.hint_button} >
+                                    <Text style={game_styles.hint_text}>hint</Text>
+                                </View>
                             </View>
                         }
                         </View>
@@ -995,6 +1003,12 @@ const game_styles = StyleSheet.create({
         padding: 6,
         width: width,
         borderBottomWidth: 6,
+    },
+    button: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: normalize(height*0.077),
+        height: normalize(height*0.077)
     },
     tablet: {
         marginTop: 6,
@@ -1071,6 +1085,13 @@ const game_styles = StyleSheet.create({
         width: width,
         borderTopWidth: 6,
     },
+    hint_container: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: normalize(height*0.16),
+        height: normalize(height*0.085)
+
+    },
     hint_button: {
         height: height/23,
         width: height/9,
@@ -1078,7 +1099,6 @@ const game_styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: '#486bdd',
         borderRadius: 15,
-        marginRight: 30
     },
     hint_text: {
         fontSize: normalizeFont(configs.LETTER_SIZE*0.094),
