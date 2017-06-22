@@ -248,7 +248,7 @@ module.exports = class Settings extends Component {
                         </Button>
                         <Text style={styles.header_text} >Settings
                         </Text>
-                        <Button style={{right: height*.02}}>
+                        <Button style={settings_styles.button}>
                             <Image source={ require('../images/noimage.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                         </Button>
                     </View>
