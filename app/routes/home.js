@@ -140,7 +140,6 @@ class Home extends Component{
             indexSelected: 0,
             todayFull: null,
             isPremium: this.props.isPremium,
-            hasRated: 'false',
             menuImage: require('../images/menu.png'),
             total_score: 0,
             total_opacity: 1,
@@ -172,17 +171,6 @@ class Home extends Component{
                     AsyncStorage.setItem(KEY_solvedTP, 'false');
                 } catch (error) {
                     window.alert('AsyncStorage error: 174' + error.message);
-                }
-            }
-            return AsyncStorage.getItem(KEY_ratedTheApp);
-        }).then((rated) => {
-            if (rated !== null) {
-                if(rated == 'true')this.setState({hasRated: rated});
-            }else{
-                try {
-                    AsyncStorage.setItem(KEY_ratedTheApp, 'false');
-                } catch (error) {
-                    window.alert('AsyncStorage error: 185' + error.message);
                 }
             }
             return AsyncStorage.getItem(KEY_show_score);
@@ -481,7 +469,6 @@ class Home extends Component{
                     dataSource: verseArray,
                     dataElement: index,
                     isPremium: this.state.isPremium,
-                    hasRated: this.state.hasRated,
                     bgColor: '#cfe7c2'
                 },
             });
@@ -506,7 +493,6 @@ class Home extends Component{
                         fromWhere: 'home',
                         dataElement: index,
                         isPremium: this.state.isPremium,
-                        hasRated: this.state.hasRated
                     },
                 });
                 return;
@@ -525,7 +511,6 @@ class Home extends Component{
                         gripeText: gripeText,
                         dataElement: index,
                         isPremium: this.state.isPremium,
-                        hasRated: this.state.hasRated,
                         bgColor: bg//'#795959'
                     },
                 });
@@ -552,7 +537,6 @@ class Home extends Component{
                     todayFull: this.state.todayFull,
                     dataElement: index,
                     isPremium: this.state.isPremium,
-                    hasRated: this.state.hasRated,
                     bgColor: bgColorToSend
                 },
             });
@@ -642,7 +626,7 @@ class Home extends Component{
                                 <Image source={this.state.menuImage} style={ { width: normalize(height/15), height: normalize(height/15) } } />
                             </Button>
                             <Image source={ require('../images/logo2.png') } style={ { width: normalize(height * .2), height: normalize(height * .07) } } />
-                            <Button style={{right: height*.02}}>
+                            <Button style={container_styles.button}>
                                 <Image source={ require('../images/noimage.png') } style={ { width: normalize(height/15), height: normalize(height/15) } } />
                             </Button>
                             <View style={ container_styles.total_score }>
