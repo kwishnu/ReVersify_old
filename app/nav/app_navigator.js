@@ -13,6 +13,7 @@ const Daily = require('../routes/daily');
 const Collection = require('../routes/collection');
 const Favorites = require('../routes/favorites');
 const Bounce = require('../routes/bounce');
+const HintStore = require('../routes/hintstore');
 
 class AppNavigator extends React.Component {
     constructor(props) {
@@ -42,6 +43,8 @@ class AppNavigator extends React.Component {
                 return Favorites;
             case 'bounce':
                 return Bounce;
+            case 'hints':
+                return HintStore;
 
             // Add more ids here
         }
