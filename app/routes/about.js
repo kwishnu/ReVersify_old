@@ -75,11 +75,11 @@ module.exports = class Settings extends Component {
         return (
             <View style={about_styles.container}>
                 <View style={ about_styles.header }>
-                    <Button style={{left: height*.02}} onPress={ () => this.goSomewhere() }>
+                    <Button style={about_styles.button} onPress={ () => this.goSomewhere() }>
                         <Image source={ require('../images/arrowback.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                     </Button>
                     <Text style={styles.header_text} >About  reVersify</Text>
-                    <Button style={{right: height*.02}}>
+                    <Button style={about_styles.button}>
                         <Image source={ require('../images/noimage.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                     </Button>
                 </View>
@@ -98,7 +98,7 @@ module.exports = class Settings extends Component {
                         </View>
                     </View>
                     <Text style={about_styles.mediumPrint}>{'If you enjoy our app, please take a moment to rate us in the store via the button below!'}</Text>
-                    <Button style={about_styles.button} onPress={() => this.rateApp()}>
+                    <Button style={about_styles.rate_rate_button} onPress={() => this.rateApp()}>
                         <Text style={about_styles.sure}>Sure!</Text>
                     </Button>
                 </View>
@@ -122,6 +122,12 @@ const about_styles = StyleSheet.create({
         padding: 6,
         width: width,
         backgroundColor: '#000000',
+    },
+    button: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: normalize(height*0.077),
+        height: normalize(height*0.077)
     },
     about_container: {
         flex: 15,
@@ -157,7 +163,7 @@ const about_styles = StyleSheet.create({
         backgroundColor: '#333333',
         margin: 20,
     },
-    button: {
+    rate_button: {
         height: 40,
         width: height * 0.2,
         backgroundColor: '#4aeeb2',
