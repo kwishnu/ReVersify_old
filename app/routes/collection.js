@@ -64,7 +64,6 @@ class Collection extends Component{
         this.state = {
             id: 'collection',
             homeData: this.props.homeData,
-            dataElement: this.props.dataElement,
             title: this.props.title,
             isOpen: false,
             dataSource: ds.cloneWithRows(Array.from(new Array(parseInt(this.props.homeData[this.props.dataElement].num_verses, 10)), (x,i) => i)),
@@ -99,7 +98,7 @@ class Collection extends Component{
                         window.alert('AsyncStorage error: ' + error.message);
                     }
                     this.props.navigator.replace({
-                        id: 'splash screen',
+                        id: 'splash',
                         passProps: {
                             motive: 'initialize'
                         }
@@ -398,7 +397,6 @@ class Collection extends Component{
                     todayFull: this.props.todayFull,
                     gripeText: gripeText,
                     dataElement: index,
-                    isPremium: this.props.isPremium,
                     bgColor: '#055105'
                 },
             });
@@ -408,17 +406,16 @@ class Collection extends Component{
         let bgC = this.props.bgColor;
         let newColor = (bgC == '#000000')? '#cfe7c2':this.props.bgColor;
         if(index>parseInt(this.props.homeData[this.props.dataElement].num_solved, 10))return;
+        console.log(this.props.homeData[this.props.dataElement].verses[index]);
         this.props.navigator.replace({
             id: 'game',
             passProps: {
-                homeData: this.state.homeData,
+                homeData: this.props.homeData,
                 title: index + 1,
                 index: index,
                 fromWhere: 'collection',
                 daily_solvedArray: this.props.daily_solvedArray,
                 dataElement: this.props.dataElement,
-                isPremium: this.props.isPremium,
-                hasRated: this.props.hasRated,
                 bgColor: newColor,
                 myTitle: this.props.title
             },
@@ -446,7 +443,7 @@ class Collection extends Component{
                                 <Image source={ require('../images/arrowback.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                             </Button>
                             <Text style={{fontSize: configs.LETTER_SIZE * 0.7, color: this.state.titleColor}} >{this.props.title}</Text>
-                            <Button style={{right: height*.02}}>
+                            <Button style={collection_styles.button}>
                                 <Image source={ require('../images/noimage.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                             </Button>
                         </View>

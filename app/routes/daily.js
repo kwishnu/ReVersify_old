@@ -62,7 +62,7 @@ class Daily extends Component{
                         window.alert('AsyncStorage error: ' + error.message);
                     }
                     this.props.navigator.replace({
-                        id: 'splash screen',
+                        id: 'splash',
                         passProps: {
                             motive: 'initialize'
                         }
@@ -155,7 +155,6 @@ class Daily extends Component{
                             fromWhere: 'home',
                             dataElement: '16',
                             isPremium: this.state.isPremium,
-                            hasRated: this.props.hasRated
                         },
                     });
                     return;
@@ -320,7 +319,6 @@ class Daily extends Component{
                 daily_solvedArray: this.props.daily_solvedArray,
                 dataElement: this.props.dataElement,
                 isPremium: this.state.isPremium,
-                hasRated: this.props.hasRated,
                 bgColor: this.props.bgColor,
                 myTitle: this.props.title
             },
@@ -339,7 +337,7 @@ class Daily extends Component{
                             <Image source={ require('../images/arrowback.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                         </Button>
                         <Text style={styles.header_text} >{this.props.title}</Text>
-                        <Button style={{right: 15}}>
+                        <Button style={container_styles.button}>
                             <Image source={ require('../images/noimage.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                         </Button>
                     </View>
@@ -399,7 +397,7 @@ const container_styles = StyleSheet.create({
         top: height/2,
     },
     gripe_text: {
-        color: '#e3e004',
+        color: '#cfe7c2',
         fontSize: normalizeFont(configs.LETTER_SIZE * 0.09),
         textAlign: 'center',
     },

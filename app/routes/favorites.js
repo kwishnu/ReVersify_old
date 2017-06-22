@@ -107,7 +107,7 @@ class Favorites extends Component{
                         window.alert('AsyncStorage error: ' + error.message);
                     }
                     this.props.navigator.replace({
-                        id: 'splash screen',
+                        id: 'splash',
                         passProps: {
                             motive: 'initialize'
                         }
@@ -435,7 +435,6 @@ class Favorites extends Component{
                 daily_solvedArray: this.props.daily_solvedArray,
                 dataElement: '20',
                 isPremium: this.props.isPremium,
-                hasRated: this.props.hasRated,
                 bgColor: newColor,
                 myTitle: this.props.title,
                 fromWhere: 'favorites'
