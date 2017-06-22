@@ -39,8 +39,8 @@ class SplashScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            id: 'splash screen',
-            seenStart: 'true',
+            id: 'splash',
+            seenStart: 'false',
             notif_time: '',
             hasPremium: 'false',
             connectionBool: true,
@@ -86,7 +86,6 @@ class SplashScreen extends Component {
                         }
                     }
                 }
-                console.log(JSON.stringify(homeData[20]));
                 this.setState({ hasPremium: premiumBool,
                                 getPurchased: getPurchasedBool,
                                 pData: homeData
@@ -103,8 +102,20 @@ class SplashScreen extends Component {
                             window.alert('AsyncStorage error: ' + error.message);
                         }
                     }
+                return AsyncStorage.getItem(KEY_SeenStart);
+            }).then((seenIntro) => {
+                if (seenIntro !== null) {//has already seen app intro
+                    this.setState({seenStart: seenIntro});
+                }else{    //hasn't seen app intro...
+                    this.setState({seenStart: 'false'});
+                    try {
+                        AsyncStorage.setItem(KEY_SeenStart, 'true');
+                    } catch (error) {
+                        window.alert('AsyncStorage error: ' + error.message);
+                    }
+                }
                     return NetInfo.isConnected.fetch();
-                }).then((isConnected) => {//if has internet connection, get daily verses and current app object
+            }).then((isConnected) => {//if has internet connection, get daily verses and current app object
                 if(Meteor.status().status == 'connected'){//isConnected && ...
                     return this.getData(this.state.pData, startNum);//load daily puzzles
                 }else{//still let have access to 30 days already on device even if no internet connection
