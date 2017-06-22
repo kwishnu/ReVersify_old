@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {
-  AppRegistry,
   StyleSheet,
   Text,
   View,
@@ -12,12 +11,13 @@ import {
   Easing,
   BackAndroid
 } from 'react-native';
-import AppIntro from 'react-native-app-intro';
-const KEY_UseNumLetters = 'numLetters';
+const KEY_MyHints = 'myHintsKey';
+const KEY_Premium = 'premiumOrNot';
+const KEY_InfinteHints = 'infHintKey';
+const KEY_PlayFirst = 'playFirstKey';
 const KEY_ratedTheApp = 'ratedApp';
 const KEY_expandInfo = 'expandInfoKey';
-const KEY_Premium = 'premiumOrNot';
-const KEY_HighScore = 'highScoreKey';
+const KEY_Solved = 'numSolvedKey';
 const KEY_show_score = 'showScoreKey';
 const {width, height} = require('Dimensions').get('window');
 
@@ -34,22 +34,24 @@ class Intro extends Component {
     componentDidMount() {
 //        this.animate_hand_delay();
 //        this.spin();
-//        BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
-//        if (this.props.seenIntro != 'true'){
-//            var initArray = [
-//                [KEY_UseNumLetters, 'true'],
-//                [KEY_Premium, 'false'],
-//                [KEY_ratedTheApp, 'false'],
-//                [KEY_expandInfo, '1.1.1.1'],
-//                [KEY_HighScore, '0'],
-//                [KEY_show_score, '1']
-//            ];
-//            try {
-//                AsyncStorage.multiSet(initArray);
-//            } catch (error) {
-//                window.alert('AsyncStorage error: ' + error.message);
-//            }
-//        }
+        BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
+        if (this.props.seenIntro != 'true'){
+            var initArray = [
+                [KEY_MyHints, '-1'],
+                [KEY_Premium, 'false'],
+                [KEY_InfinteHints, 'false'],
+                [KEY_PlayFirst, 'false'],
+                [KEY_ratedTheApp, 'false'],
+                [KEY_expandInfo, '1.1'],
+                [KEY_Solved, '0'],
+                [KEY_show_score, '1']
+            ];
+            try {
+                AsyncStorage.multiSet(initArray);
+            } catch (error) {
+                window.alert('AsyncStorage error: ' + error.message);
+            }
+        }
     }
     componentWillUnmount () {
         BackAndroid.removeEventListener('hardwareBackPress', this.handleHardwareBackButton);
@@ -130,11 +132,11 @@ class Intro extends Component {
             outputRange: [40, 0, 40]
         })
         return (
-            <AppIntro defaultIndex= {this.props.introIndex} onDoneBtnClick={this.doneBtnHandle} onSkipBtnClick={this.onSkipBtnHandle}>
+            <View defaultIndex= {this.props.introIndex} onDoneBtnClick={this.doneBtnHandle} onSkipBtnClick={this.onSkipBtnHandle}>
 
                 <View style={[styles.slide,{ backgroundColor: '#000000' }]}>
                 </View>
-            </AppIntro>
+            </View>
         );
     }
 }
@@ -143,46 +145,15 @@ class Intro extends Component {
 const styles = StyleSheet.create({
   slide: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'stretch',
-  },
-  header: {
-    flex: 1,
+    height: height,
     width: width,
     justifyContent: 'center',
-    alignItems: 'stretch',
   },
   hand: {
     position: 'absolute',
     top: height * .6,
     height: 30,
     width: 40
-  },
-  pic: {
-    position: 'absolute',
-    width: width,
-    height: height,
-  },
-  info: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  title: {
-    color: '#fff',
-    fontSize: 30,
-    paddingBottom: 6,
-  },
-  swipeText: {
-    color: '#fff',
-    fontSize: 20,
-    textAlign: 'center',
-  },
-  center_text_view: {
-    width: width*.7,
-    flexDirection: 'column',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
 
