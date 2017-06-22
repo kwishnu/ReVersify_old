@@ -14,7 +14,10 @@ const KEY_Verses = 'versesKey';
 const KEY_solvedTP = 'solvedTP';
 const KEY_daily_solved_array = 'solved_array';
 const KEY_Time = 'timeKey';
-
+const KEY_MyHints = 'myHintsKey';
+//const KEY_Premium = 'premiumOrNot';
+const KEY_InfinteHints = 'infHintKey';
+const KEY_PlayFirst = 'playFirstKey';
 let dsArray = [];
 let homeData = {};
 let Sound = require('react-native-sound');
@@ -156,7 +159,14 @@ class Game extends Component {
             scaleXY: new Animated.Value(0),
             soundString: 'Mute Sounds',
             useSounds: true,
-            doneWithVerse: false
+            doneWithVerse: false,
+            playFirstFragment: false,
+//            hasPremium: false,
+            numHints: 0,
+            myHintsInitialNum: -1,
+            hintNumOpacity: 1,
+            hasInfiniteHints: false,
+            entireVerse: ''
         }
         this.handleHardwareBackButton = this.handleHardwareBackButton.bind(this);
     }
@@ -168,8 +178,10 @@ class Game extends Component {
         homeData = this.props.homeData;
         let verseArray = this.props.homeData[this.props.dataElement].verses[this.props.index].split('**');
         dsArray = this.props.daily_solvedArray;
-        let chapterVerse = verseArray[0];
-        let verseStr = verseArray[1];
+        let numHints = parseInt(verseArray[0]);
+        let chapterVerse = verseArray[1];
+        let verseStr = verseArray[2];
+        let saveVerse = verseStr;
         let initial = verseStr.substr(0, 1);
         verseStr = verseStr.substring(1);
         switch(initial){
@@ -186,12 +198,11 @@ class Game extends Component {
                 this.setState({ letterImage: require('../images/letters/i.png') });
         }
 
-        this.populateArrays(verseStr).then((values) => {
+        this.populateArrays(verseStr, numHints).then((values) => {
             if(values){
-                this.setState({ fragmentOrder: values.fragmentOrder, nextFrag: values.nextFrag, frag0: values.frag0, frag1: values.frag1, frag2: values.frag2, frag3: values.frag3, frag4: values.frag4, frag5: values.frag5, frag6: values.frag6, frag7: values.frag7, frag8: values.frag8, frag9: values.frag9, frag10: values.frag10,
+                this.setState({ numHints: values.hints, fragmentOrder: values.fragmentOrder, nextFrag: values.nextFrag, frag0: values.frag0, frag1: values.frag1, frag2: values.frag2, frag3: values.frag3, frag4: values.frag4, frag5: values.frag5, frag6: values.frag6, frag7: values.frag7, frag8: values.frag8, frag9: values.frag9, frag10: values.frag10,
                                 frag11: values.frag11, frag12: values.frag12,  frag13: values.frag13, frag14: values.frag14, frag15: values.frag15, frag16: values.frag16, frag17: values.frag17, frag18: values.frag18, frag19: values.frag19, frag20: values.frag20, frag21: values.frag21, frag22: values.frag22, frag23: values.frag23,
-                                chapterVerse: chapterVerse
-
+                                chapterVerse: chapterVerse, entireVerse: saveVerse
                 })
                 this.assignWordsToRows(verseStr);
             }
@@ -217,6 +228,24 @@ class Game extends Component {
                     window.alert('AsyncStorage error: ' + error.message);
                 }
             }
+//            return AsyncStorage.getItem(KEY_Premium);//has purchased any item
+//        }).then((prem) => {
+//            let premiumBool = (prem == 'true')?true:false;
+//            if (premiumBool)this.setState({hasPremium: play });
+            return AsyncStorage.getItem(KEY_InfinteHints);
+        }).then((infHintsStr) => {
+            let infHints = (infHintsStr == 'true')?true:false;
+            if(infHints)this.setState({ hasInfiniteHints: infHints, hintNumOpacity: 0 });
+            return AsyncStorage.getItem(KEY_MyHints);
+        }).then((numHintsStr) => {
+            let num = parseInt(numHintsStr);
+            if (num > -1){
+                this.setState({ numHints: num, myHintsInitialNum: num });
+            }
+            return AsyncStorage.getItem(KEY_PlayFirst);
+        }).then((playFirst) => {
+            let play = (playFirst == 'true')?true:false;
+            if (play)this.setState({playFirstFragment: play });
         }).then(() => {setTimeout(() => {this.setState({ isLoading: false })}, 500)})
     }
     componentWillUnmount () {
@@ -233,7 +262,7 @@ class Game extends Component {
     }
     setPanelColors(){
         let darkerPanel = shadeColor(this.props.bgColor, -10);
-        let darkerBorder = shadeColor(this.props.bgColor, -30);
+        let darkerBorder = shadeColor(this.props.bgColor, -50);
         this.setState({panelBgColor: darkerPanel, panelBorderColor: darkerBorder});
     }
     handleAppStateChange=(appState)=>{
@@ -262,7 +291,6 @@ class Game extends Component {
             });
         }
     }
-
     assignWordsToRows(verse){
         let layout = [[], [], [], [], [], [], [], []];
         let verseArray = verse.split(' ');
@@ -345,7 +373,7 @@ class Game extends Component {
                 }
         });
     }
-    populateArrays(theVerse){
+    populateArrays(theVerse, num){
         return new Promise(
             function (resolve, reject) {
                 let verseKeyString = cleanup(theVerse);
@@ -418,7 +446,7 @@ class Game extends Component {
                 for (let jj=0; jj<difference; jj++){
                     f2.push('');
                 }
-                let returnObject={ length: fragments.length, frag0: f2[0], frag1: f2[1], frag2: f2[2], frag3: f2[3], frag4: f2[4], frag5: f2[5], frag6: f2[6], frag7: f2[7], frag8: f2[8], frag9: f2[9], frag10: f2[10], frag11: f2[11], frag12: f2[12],
+                let returnObject={ hints: num, length: fragments.length, frag0: f2[0], frag1: f2[1], frag2: f2[2], frag3: f2[3], frag4: f2[4], frag5: f2[5], frag6: f2[6], frag7: f2[7], frag8: f2[8], frag9: f2[9], frag10: f2[10], frag11: f2[11], frag12: f2[12],
                                    frag13: f2[13], frag14: f2[14], frag15: f2[15], frag16: f2[16], frag17: f2[17], frag18: f2[18],frag19: f2[19], frag20: f2[20], frag21: f2[21], frag22: f2[22], frag23: f2[23],
                                    fragmentOrder: fragments, nextFrag: fragments[0]
                                  }
@@ -449,7 +477,6 @@ class Game extends Component {
                 homeData: this.props.homeData,
                 daily_solvedArray: this.state.daily_solvedArray,
                 dataElement: this.props.dataElement,
-                hasRated: this.state.hasRated,
                 textColor: this.props.textColor,
                 bgColor: this.props.bgColor,
                 senderTitle: this.props.myTitle,
@@ -475,7 +502,6 @@ class Game extends Component {
                     dataSource: verseArray,
                     dataElement: '20',
                     isPremium: this.state.isPremium,
-                    hasRated: this.state.hasRated,
                     bgColor: '#cfe7c2'
                 },
             });
@@ -508,13 +534,17 @@ class Game extends Component {
                 homeData[21 + i].show = 'false';
             }
         }
+        try {
+            AsyncStorage.setItem(KEY_Verses, JSON.stringify(homeData));
+        } catch (error) {
+            window.alert('AsyncStorage error: ' + error.message);
+        }
         this.props.navigator.replace({
             id: where,
             passProps: {
                 homeData: this.props.homeData,
                 daily_solvedArray: this.state.daily_solvedArray,
                 dataElement: this.props.dataElement,
-                hasRated: this.state.hasRated,
                 textColor: this.props.textColor,
                 bgColor: this.props.bgColor,
                 title: this.props.myTitle,
@@ -647,6 +677,7 @@ class Game extends Component {
     }
     playDropSound(){
         if(!this.state.doneWithVerse && this.state.useSounds == true){plink1.play();}
+
     }
     footerBorder(color) {
         let bgC = this.props.bgColor;
@@ -667,6 +698,25 @@ class Game extends Component {
         return {backgroundColor: darkerColor};
     }
     giveHint(frag){
+        let hints = this.state.numHints;
+        let hasInfinite = this.state.hasInfiniteHints;
+        let myHintNum = this.state.myHintsInitialNum;
+        if (hints > 0 && !hasInfinite){
+            let newHintNum = hints - 1;
+            this.setState({numHints: newHintNum});
+            let newVerseStr = newHintNum + '**' + this.state.chapterVerse + '**' + this.state.entireVerse;
+            homeData[this.props.dataElement].verses[this.props.index] = newVerseStr;
+        }
+        if (hints < 1){
+        let alertString = (myHintNum > -1)?`Would you like to purchase more hints?`:`Sorry, only 2 hints per Verse unless you've purchased a hint package!`;
+            Alert.alert( 'No more hints...',  alertString,
+                [
+                    {text: 'See Packages', onPress: () => this.goToHintStore()},
+                    {text: 'No Thanks', style: 'cancel'},
+                ]
+            )
+            return;
+        }
         if(this.state.useSounds == true){swish.play();}
         this.a.showNextTile(frag);
         this.b.showNextTile(frag);
@@ -702,6 +752,27 @@ class Game extends Component {
                 this.e.showNextTile(frag);
                 this.f.showNextTile(frag);
         }
+
+    }
+    goToHintStore(){
+        try {
+            this.props.navigator.push({
+                id: 'hints',
+                passProps: {
+                    destination: 'game',
+                    homeData: this.state.homeData,
+                    daily_solvedArray: dsArray,
+                    title: this.props.title,
+                    dataSource: this.state.dataSource,
+                    dataElement: this.props.dataElement,
+                    bgColor: this.props.bgColor
+                }
+            });
+        } catch(err)  {
+            window.alert(err.message)
+            return true;
+        }
+
     }
     showButtonPanel(){
         this.grow.setValue(0);
@@ -732,11 +803,10 @@ class Game extends Component {
         let pBC = '';
         let bool = false;
         if(!this.state.showingVerse){
-            chapterVerseStr = this.state.chapterVerse;
             pBgC = '#555555';
             pBC = '#000000';
             bool = true;
-            this.setState({panelText: chapterVerseStr,
+            this.setState({panelText: this.state.chapterVerse,
                                        panelBgColor: pBgC,
                                        panelBorderColor: pBC,
                                        showingVerse: bool
@@ -748,18 +818,13 @@ class Game extends Component {
                   }
             ).start();
         }else{
-            chapterVerseStr = '';
-            pBgC = this.props.bgColor;
-            pBC = invertColor(this.props.bgColor, true);
-            this.setState({panelText: chapterVerseStr,
-                           panelBgColor: pBgC,
-                           panelBorderColor: pBC,
-                           showingVerse: bool
-            })
+            this.setPanelColors();
+            this.setState({panelText: '', showingVerse: bool});
         }
     }
     showDropdown(){
-            this.setState({ shouldShowDropdown: true,});
+        this.setState({ shouldShowDropdown: true,});
+
     }
     onDropdownSelect(which){
         this.setState({ shouldShowDropdown: false });
@@ -821,7 +886,9 @@ class Game extends Component {
             window.alert('AsyncStorage error: ' + error.message);
         }
     }
-  render() {
+
+
+    render() {
         const rotateY = this.flip.interpolate({
             inputRange: [0, 1],
             outputRange: ['0deg', '360deg']
@@ -830,7 +897,6 @@ class Game extends Component {
             inputRange: [0, 1],
             outputRange: [0, 1]
         });
-//        let { scale } = this.state;
         let imageStyle = {transform: [{rotateY}]};
         let buttonsStyle = {opacity: this.opac.interpolate({
                                     inputRange: [0, 1],
@@ -949,9 +1015,16 @@ class Game extends Component {
                         </View>
                         <View style={[game_styles.footer, this.footerBorder(this.state.bgColor), this.headerFooterColor(this.state.bgColor)]}>
                         { this.state.showHintButton &&
-                            <View style={game_styles.hint_container} onStartShouldSetResponder={() => { this.giveHint(this.state.nextFrag) }}>
-                                <View style={game_styles.hint_button} >
-                                    <Text style={game_styles.hint_text}>hint</Text>
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between', width: width}}>
+                                <View style={game_styles.hint_container}>
+                                </View>
+                                <View style={game_styles.hint_container} onStartShouldSetResponder={() => { this.giveHint(this.state.nextFrag) }}>
+                                    <View style={game_styles.hint_button} >
+                                        <Text style={game_styles.hint_text}>hint</Text>
+                                    </View>
+                                </View>
+                                <View style={game_styles.hint_container}>
+                                    <Text style={[game_styles.hint_text, {opacity: this.state.hintNumOpacity}]}>{ this.state.numHints }</Text>
                                 </View>
                             </View>
                         }
@@ -1081,16 +1154,15 @@ const game_styles = StyleSheet.create({
         flex: 3,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'flex-end',
+        justifyContent: 'center',
         width: width,
         borderTopWidth: 6,
     },
     hint_container: {
         alignItems: 'center',
         justifyContent: 'center',
-        width: normalize(height*0.16),
-        height: normalize(height*0.085)
-
+        width: normalize(height*0.12),
+        height: normalize(height*0.085),
     },
     hint_button: {
         height: height/23,
