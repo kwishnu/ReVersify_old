@@ -23,8 +23,8 @@ module.exports = class Menu extends Component {
         };
     }
     formatData(data) {
-        const headings = 'reVersify*Collections Store*Books Store*Social Media*About reVersify'.split('*');
-        const keys = 'toVerses*store*combos*social*about'.split('*');
+        const headings = 'reVersify*Donate*Social Media*About reVersify'.split('*');
+        const keys = 'home*donate*social*about'.split('*');
         const dataBlob = {};
         const sectionIds = [];
         const rowIds = [];
@@ -88,9 +88,8 @@ const menu_styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        paddingLeft: height/36,
-        paddingTop: height/70,
-        paddingBottom: height/70,
+        paddingLeft: height/30,
+        paddingVertical: height/70,
         backgroundColor: '#333333',
     },
     launcher_text: {
