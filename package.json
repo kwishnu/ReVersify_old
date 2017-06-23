@@ -14,7 +14,9 @@
     "react-native-orientation": "git+https://github.com/yamill/react-native-orientation.git",
     "react-native-push-notification": "^2.2.1",
     "react-native-side-menu": "^0.20.1",
-    "react-native-sound": "^0.10.2"
+    "react-native-sound": "^0.10.2",
+    "react-native-swiper": "^1.5.4",
+    "react-timer-mixin": "^0.13.3"
   },
   "devDependencies": {
     "babel-jest": "20.0.3",
