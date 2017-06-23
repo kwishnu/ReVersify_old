@@ -8,7 +8,6 @@ import Meteor from 'react-native-meteor';
 import configs from '../config/configs';
 import { normalize, normalizeFont }  from '../config/pixelRatio';
 let Orientation = require('react-native-orientation');
-
 shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1));
@@ -457,8 +456,8 @@ class Home extends Component{
 
         if (index == '20'){//favorites
             let verseArray = [];
-            for (let v=0; v< this.state.homeData[20].verses.length; v++){
-                verseArray.push(v + '**' + this.state.homeData[20].verses[v]);
+            for (let v=0; v< this.state.homeData[17].verses.length; v++){
+                verseArray.push(v + '**' + this.state.homeData[17].verses[v]);
             }
             this.props.navigator.replace({
                 id: 'favorites',
@@ -543,7 +542,7 @@ class Home extends Component{
         });
     }
     showDialog(index, type){
-        if(index < 19 || index == 20)return;
+        if(index < 19 || index == 17)return;
         Vibration.vibrate(25);
         BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
         if(type == 'mypack' || type == 'solved'){

@@ -55,12 +55,15 @@ const fanfare = new Sound('aah.mp3', Sound.MAIN_BUNDLE, (error) => {
 
 cleanup = (sentence) => {
    return sentence.toLowerCase().replace(/[^a-zA-Z]+/g, "");
+
 }
 randomBetween = (min,max) => {
     return Math.floor(Math.random()*(max-min+1)+min);
+
 }
 reverse = (s) => {
     return s.split("").reverse().join("");
+
 }
 shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
@@ -76,7 +79,6 @@ shadeColor = (color, percent) => {
     let f=parseInt(color.slice(1),16),t=percent<0?0:255,p=percent<0?percent*-1:percent,R=f>>16,G=f>>8&0x00FF,B=f&0x0000FF;
     return "#"+(0x1000000+(Math.round((t-R)*p)+R)*0x10000+(Math.round((t-G)*p)+G)*0x100+(Math.round((t-B)*p)+B)).toString(16).slice(1);
 }
-
 invertColor = (hex, bw) => {
     if (hex.indexOf('#') === 0) {
         hex = hex.slice(1);
@@ -97,6 +99,7 @@ invertColor = (hex, bw) => {
             : '#FFFFFF';
     }
 }
+
 
 class Game extends Component {
     constructor(props) {
@@ -171,7 +174,7 @@ class Game extends Component {
         this.handleHardwareBackButton = this.handleHardwareBackButton.bind(this);
     }
     componentDidMount() {
-        if (this.props.dataElement == 20)this.setState({showFavorites: false});
+        if (this.props.dataElement == 17)this.setState({showFavorites: false});
         this.setPanelColors();
         BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
         AppState.addEventListener('change', this.handleAppStateChange);
@@ -218,9 +221,7 @@ class Game extends Component {
             if (sounds !== null) {
                 var soundStr = (sounds == 'true')?'Mute Sounds':'Use Sounds';
                 var soundBool = (sounds == 'true')?true:false;
-                this.setState({soundString: soundStr,
-                                useSounds: soundBool
-                });
+                this.setState({soundString: soundStr, useSounds: soundBool});
             }else{
                 try {
                     AsyncStorage.setItem(KEY_Sound, 'true');//
@@ -490,8 +491,8 @@ class Game extends Component {
     closeGame(where){
         if (where == 'favorites'){
             let verseArray = [];
-            for (let v=0; v< this.state.homeData[20].verses.length; v++){
-                verseArray.push(v + '**' + this.state.homeData[20].verses[v]);
+            for (let v=0; v< this.state.homeData[17].verses.length; v++){
+                verseArray.push(v + '**' + this.state.homeData[17].verses[v]);
             }
             this.props.navigator.replace({
                 id: 'favorites',
@@ -500,7 +501,7 @@ class Game extends Component {
                     daily_solvedArray: dsArray,
                     title: 'My Favorites',
                     dataSource: verseArray,
-                    dataElement: '20',
+                    dataElement: '17',
                     isPremium: this.state.isPremium,
                     bgColor: '#cfe7c2'
                 },
@@ -514,24 +515,25 @@ class Game extends Component {
                 myPackArray.push(homeData[key].title);
             }
         }
-        let levels = [3,4,5,6];//Easy, Moderate, Hard, Theme
-        for(let i=0; i<4; i++){
-            let titleIndex = -1;
-            let rnd = Array.from(new Array(homeData[levels[i]].data.length), (x,i) => i);
+        var levels = [5, 5, 6, 7];
+        for(var i=0; i<4; i++){
+            var titleIndex = -1;
+            var rnd = Array.from(new Array(homeData[levels[i]].data.length), (x,i) => i);
             rnd = shuffleArray(rnd);
-            for (let r=0; r<homeData[levels[i]].data.length; r++){
+            for (var r=0; r<rnd.length; r++){
                 if (myPackArray.indexOf(homeData[levels[i]].data[rnd[r]].name) < 0){
                     titleIndex = rnd[r];
+                    myPackArray.push(homeData[r].title);
                     break;
                 }
             }
-            if (titleIndex !== -1){
-                homeData[21 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
-                homeData[21 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
-                homeData[21 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
-                homeData[21 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
+            if (titleIndex > -1){
+                homeData[18 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
+                homeData[18 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
+                homeData[18 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
+                homeData[18 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
             }else{
-                homeData[21 + i].show = 'false';
+                homeData[18 + i].show = 'false';
             }
         }
         try {
@@ -772,7 +774,6 @@ class Game extends Component {
             window.alert(err.message)
             return true;
         }
-
     }
     showButtonPanel(){
         this.grow.setValue(0);
@@ -873,12 +874,12 @@ class Game extends Component {
         }
     }
     addToFavorites(){
-        let num = (parseInt(homeData[20].num_verses, 10) + 1) + '';
-        homeData[20].num_verses = num;
-//        homeData[20].num_solved = num;
-        homeData[20].verses.push(this.props.homeData[this.props.dataElement].verses[this.props.index]);
-//        homeData[20].solved.push(1);
-        homeData[20].show = 'true';
+        let num = (parseInt(homeData[17].num_verses, 10) + 1) + '';
+        homeData[17].num_verses = num;
+//        homeData[17].num_solved = num;
+        homeData[17].verses.push(this.props.homeData[this.props.dataElement].verses[this.props.index]);
+//        homeData[17].solved.push(1);
+        homeData[17].show = 'true';
         try {
             AsyncStorage.setItem(KEY_Verses, JSON.stringify(homeData));
             Alert.alert('Verse Added', this.state.chapterVerse + ' added to Favorites' );
@@ -922,7 +923,7 @@ class Game extends Component {
                             </Button>
                         </View>
                         <View style={game_styles.tablet}>
-                                <Image style={{ width: normalize(height/2.5), height: normalize(height/4) }} source={require('../images/biblegraphic.png')} />
+                                <Image style={game_styles.biblegraphic} source={require('../images/biblegraphic.png')} />
                                 <Image style={game_styles.letter} source={this.state.letterImage} />
                                 <View style={game_styles.verse_container}>
                                     <View style={game_styles.first_line}>
@@ -1092,37 +1093,37 @@ const game_styles = StyleSheet.create({
         padding: 6,
         width: width,
     },
+    biblegraphic: {
+        position: 'absolute',
+        top: height*.008,
+        left: (width-(height*.478))/2,
+        height: height*.29,
+        width: height*.478,
+    },
     letter: {
         position: 'absolute',
-        left: normalize(height/11.5),
-        top: normalize(height/26.5),
-        width: normalize(height/12),
-        height: normalize(height/11.8),
+        top: height*.052,
+        left: (width-(height*.478))/2 + height*.058,
+        width: height*.08,
+        height: height*.083,
     },
     verse_container: {
         flex: 1,
         position: 'absolute',
-        left: normalize(height/10.8),
-        top: normalize(height/23),
-        width: normalize(height*.4),
-        height: normalize(height/4.4),
-    },
-    panel_icon: {
-        position: 'absolute',
-        right: normalize(height/70),
-        top: normalize(height/200),
-        width: normalize(height*0.05),
-        height: normalize(height*0.05),
+        top: height*.05,
+        left: (width-(height*.478))/2 + height*.063,
+        width: width*.75,
+        height: height*.25,
     },
     first_line: {
         flex: 1,
-        paddingLeft: normalize(height/13),
+        paddingLeft: height*.075,
     },
     line: {
         flex: 1,
     },
     verse_text: {
-        fontSize: normalizeFont(configs.LETTER_SIZE*0.094),
+        fontSize: normalizeFont(configs.LETTER_SIZE*0.09),
         color: '#000000',
         fontFamily: 'Book Antiqua',
     },
@@ -1140,7 +1141,7 @@ const game_styles = StyleSheet.create({
         borderWidth: StyleSheet.hairlineWidth,
     },
     panel_text: {
-        fontSize: 14,
+        fontSize: normalizeFont(configs.LETTER_SIZE*0.08),
         color: '#ffffff'
     },
     game: {
