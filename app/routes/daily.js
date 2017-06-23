@@ -90,24 +90,25 @@ class Daily extends Component{
                         myPackArray.push(homeData[key].title);
                     }
                 }
-                var levels = [3,4,5,6];//Easy, Moderate, Hard, Theme
+                var levels = [5, 5, 6, 7];
                 for(var i=0; i<4; i++){
                     var titleIndex = -1;
                     var rnd = Array.from(new Array(homeData[levels[i]].data.length), (x,i) => i);
                     rnd = shuffleArray(rnd);
-                    for (var r=0; r<homeData[levels[i]].data.length; r++){
+                    for (var r=0; r<rnd.length; r++){
                         if (myPackArray.indexOf(homeData[levels[i]].data[rnd[r]].name) < 0){
                             titleIndex = rnd[r];
+                            myPackArray.push(homeData[r].title);
                             break;
                         }
                     }
-                    if (titleIndex !== -1){
-                        homeData[21 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
-                        homeData[21 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
-                        homeData[21 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
-                        homeData[21 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
+                    if (titleIndex > -1){
+                        homeData[18 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
+                        homeData[18 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
+                        homeData[18 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
+                        homeData[18 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
                     }else{
-                        homeData[21 + i].show = 'false';
+                        homeData[18 + i].show = 'false';
                     }
                 }
                 this.props.navigator.replace({

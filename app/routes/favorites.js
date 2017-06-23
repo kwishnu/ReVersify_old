@@ -151,24 +151,25 @@ class Favorites extends Component{
                     myPackArray.push(homeData[key].title);
                 }
             }
-            let levels = [3,4,5,6];//Easy, Moderate, Hard, Theme
-            for(let i=0; i<4; i++){
-                let titleIndex = -1;
-                let rnd = Array.from(new Array(homeData[levels[i]].data.length), (x,i) => i);
+            var levels = [5, 5, 6, 7];
+            for(var i=0; i<4; i++){
+                var titleIndex = -1;
+                var rnd = Array.from(new Array(homeData[levels[i]].data.length), (x,i) => i);
                 rnd = shuffleArray(rnd);
-                for (let r=0; r<homeData[levels[i]].data.length; r++){
+                for (var r=0; r<rnd.length; r++){
                     if (myPackArray.indexOf(homeData[levels[i]].data[rnd[r]].name) < 0){
                         titleIndex = rnd[r];
+                        myPackArray.push(homeData[r].title);
                         break;
                     }
                 }
-                if (titleIndex !== -1){
-                    homeData[21 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
-                    homeData[21 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
-                    homeData[21 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
-                    homeData[21 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
+                if (titleIndex > -1){
+                    homeData[18 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
+                    homeData[18 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
+                    homeData[18 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
+                    homeData[18 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
                 }else{
-                    homeData[21 + i].show = 'false';
+                    homeData[18 + i].show = 'false';
                 }
             }
             try {
@@ -459,18 +460,18 @@ class Favorites extends Component{
     removeItem(item){
         let num = parseInt(item, 10);
         let dataArray = this.state.homeData;
-        let bool = (this.state.homeData[20].verses.length > 1)?'true':'false';
-        dataArray[20].show = bool;
-        dataArray[20].verses.length = 0;
-        dataArray[20].num_verses = (parseInt(dataArray[20].num_verses) - 1) + '';
-//        dataArray[20].num_solved = (parseInt(dataArray[20].num_solved) - 1) + '';
-//        dataArray[20].solved.pop();
+        let bool = (this.state.homeData[17].verses.length > 1)?'true':'false';
+        dataArray[17].show = bool;
+        dataArray[17].verses.length = 0;
+        dataArray[17].num_verses = (parseInt(dataArray[17].num_verses) - 1) + '';
+//        dataArray[17].num_solved = (parseInt(dataArray[17].num_solved) - 1) + '';
+//        dataArray[17].solved.pop();
         let newArray = [];
         for (let a=0; a<this.state.dataSource.length; a++){
             if (this.state.dataSource[a].substr(0, 1) != item){
-                dataArray[20].verses.push(this.state.dataSource[a].substring(this.state.dataSource[a].indexOf('*') + 2));
+                dataArray[17].verses.push(this.state.dataSource[a].substring(this.state.dataSource[a].indexOf('*') + 2));
                 newArray.push(this.state.dataSource[a]);
-//                console.log(JSON.stringify(dataArray[20]));
+//                console.log(JSON.stringify(dataArray[17]));
             }
         }
         try {
