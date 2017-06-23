@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Image, Alert, BackAndroid, Platform, AsyncStorage, NetInfo } from 'react-native';
+import Meteor from 'react-native-meteor';
 import Button from '../components/Button';
 import configs from '../config/configs';
 import { normalize, normalizeFont }  from '../config/pixelRatio';
@@ -43,13 +44,35 @@ module.exports = class HintStore extends Component {
         }
         return true;
     }
-    startPurchase(which){
+    startPurchase(hintPackage){
         NetInfo.isConnected.fetch().then(isConnected => {
-            if (isConnected){
-//                let storeUrl = Platform.OS === 'ios' ?
-window.alert('buying ' + which);
+            if (isConnected && Meteor.status().status == 'connected'){
+//rv.hint.package.100, 500, 1000
+//rv.hint.package.0 == unlimited
+//            InAppBilling.open()
+//            .then(() => InAppBilling.purchase(itemID))
+//            .then((details) => {
+                try {
+                    this.props.navigator.pop({});
+                    this.props.navigator.replace({
+                        id: 'home',
+                        passProps: {
+                            destination: 'game',
+                            homeData: this.props.homeData,
+                        }
+                    });
+                } catch(err)  {
+                    window.alert(err.message)
+                    return true;
+                }
+//                console.log("You purchased: ", details)
+//                return InAppBilling.close()
+//            }).catch((err) => {
+//                console.log(err);
+//                return InAppBilling.close()
+//            });
             }else{
-                Alert.alert('No Connection', 'Sorry, no internet available right now. Please try again later!');
+                Alert.alert('Not Connected', `Sorry, we can't reach our servers right now. Please try again later!`);
             }
         });
     }
@@ -69,9 +92,9 @@ window.alert('buying ' + which);
                 <View style={ hints_styles.store_container }>
                     <View style={ hints_styles.purchase_row }>
                         <View style={ hints_styles.purchase_text_container }>
-                            <Text style={ hints_styles.text }>100 reVersify Hints:{'\n'}$0.99</Text>
+                            <Text style={ hints_styles.text }>100 reVersify Hints{'\n'}$0.99</Text>
                         </View>
-                        <View style={ hints_styles.purchase_button_container } onStartShouldSetResponder={ ()=> {this.startPurchase(1)}}>
+                        <View style={ hints_styles.purchase_button_container } onStartShouldSetResponder={ ()=> {this.startPurchase('rv.hint.package.100')}}>
                             <View style={hints_styles.buy_button} >
                                 <Text style={hints_styles.buy_text}>Purchase</Text>
                             </View>
@@ -79,9 +102,9 @@ window.alert('buying ' + which);
                     </View>
                     <View style={ hints_styles.purchase_row }>
                         <View style={ hints_styles.purchase_text_container }>
-                            <Text style={ hints_styles.text }>500 reVersify Hints:{'\n'}$1.99</Text>
+                            <Text style={ hints_styles.text }>500 reVersify Hints{'\n'}$1.99</Text>
                         </View>
-                        <View style={ hints_styles.purchase_button_container } onStartShouldSetResponder={ ()=> {this.startPurchase(2)}}>
+                        <View style={ hints_styles.purchase_button_container } onStartShouldSetResponder={ ()=> {this.startPurchase('rv.hint.package.500')}}>
                             <View style={hints_styles.buy_button} >
                                 <Text style={hints_styles.buy_text}>Purchase</Text>
                             </View>
@@ -89,9 +112,9 @@ window.alert('buying ' + which);
                     </View>
                     <View style={ hints_styles.purchase_row }>
                         <View style={ hints_styles.purchase_text_container }>
-                            <Text style={ hints_styles.text }>1000 reVersify Hints:{'\n'}$2.99</Text>
+                            <Text style={ hints_styles.text }>1000 reVersify Hints{'\n'}$2.99</Text>
                         </View>
-                        <View style={ hints_styles.purchase_button_container } onStartShouldSetResponder={ ()=> {this.startPurchase(3)}}>
+                        <View style={ hints_styles.purchase_button_container } onStartShouldSetResponder={ ()=> {this.startPurchase('rv.hint.package.1000')}}>
                             <View style={hints_styles.buy_button} >
                                 <Text style={hints_styles.buy_text}>Purchase</Text>
                             </View>
@@ -99,9 +122,9 @@ window.alert('buying ' + which);
                     </View>
                     <View style={ hints_styles.purchase_row }>
                         <View style={ hints_styles.purchase_text_container }>
-                            <Text style={ hints_styles.text }>Unlimited Hints:{'\n'}$3.99</Text>
+                            <Text style={ hints_styles.text }>Unlimited Hints{'\n'}$3.99</Text>
                         </View>
-                        <View style={ hints_styles.purchase_button_container } onStartShouldSetResponder={ ()=> {this.startPurchase(4)}}>
+                        <View style={ hints_styles.purchase_button_container } onStartShouldSetResponder={ ()=> {this.startPurchase('rv.hint.package.0')}}>
                             <View style={hints_styles.buy_button} >
                                 <Text style={hints_styles.buy_text}>Purchase</Text>
                             </View>
