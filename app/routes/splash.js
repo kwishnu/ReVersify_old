@@ -134,9 +134,9 @@ class SplashScreen extends Component {
                 }
             }).then((verseArray) => {
                 if(verseArray){
-                    verseArray[19].num_solved = homeData[19].num_solved;//set 'In The Beginning...' to its current state
-                    verseArray[19].type = homeData[19].type;
-                    verseArray[19].show = homeData[19].show;
+                    verseArray[16].num_solved = homeData[16].num_solved;//set 'In The Beginning...' to its current state
+                    verseArray[16].type = homeData[16].type;
+                    verseArray[16].show = homeData[16].show;
                     this.setState({ pData: verseArray });
                     return true;
                 }else{
@@ -246,21 +246,21 @@ class SplashScreen extends Component {
                                 verseStringArray.unshift(row.vs);
                             }
                         });
-                        vData.length = 25;//truncate extra elements, which shouldn't be necessary but is...
-                        vData[16].verses[0] = verseStringArray[0];//load today's verse
+                        vData.length = 22;//truncate extra elements, which shouldn't be necessary but is...
+                        vData[13].verses[0] = verseStringArray[0];//load today's verse
                         verseStringArray.shift();
                         for(var jj=0; jj<verseStringArray.length; jj++){
-                            vData[18].verses[jj] = verseStringArray[jj];//load last 30 days
-                            if(jj < 3){vData[17].verses[jj] = verseStringArray[jj];}//load last 3 days
+                            vData[15].verses[jj] = verseStringArray[jj];//load last 30 days
+                            if(jj < 3){vData[14].verses[jj] = verseStringArray[jj];}//load last 3 days
                         }
                         for (let addExtra=25; addExtra<dataArray.length; addExtra++){//add any extra packs onto data array
                             vData.push(dataArray[addExtra]);
                         }
-//                        vData[20].solved = dataArray[20].solved;
-                        vData[20].num_verses = dataArray[20].num_verses;
-//                        vData[20].num_solved = dataArray[20].num_solved;
-                        vData[20].show = dataArray[20].show;
-                        vData[20].verses = dataArray[20].verses;
+//                        vData[17].solved = dataArray[17].solved;
+                        vData[17].num_verses = dataArray[17].num_verses;
+//                        vData[17].num_solved = dataArray[17].num_solved;
+                        vData[17].show = dataArray[17].show;
+                        vData[17].verses = dataArray[17].verses;
                         resolve(vData);
                     },
                     onStop: function () {
@@ -424,24 +424,25 @@ class SplashScreen extends Component {
                 myPackArray.push(homeData[key].title);
             }
         }
-        var levels = [3,4,5,6];//Easy, Moderate, Hard, Theme
+        var levels = [5, 5, 6, 7];
         for(var i=0; i<4; i++){
             var titleIndex = -1;
             var rnd = Array.from(new Array(homeData[levels[i]].data.length), (x,i) => i);
             rnd = shuffleArray(rnd);
-            for (var r=0; r<homeData[levels[i]].data.length; r++){
+            for (var r=0; r<rnd.length; r++){
                 if (myPackArray.indexOf(homeData[levels[i]].data[rnd[r]].name) < 0){
                     titleIndex = rnd[r];
+                    myPackArray.push(homeData[r].title);
                     break;
                 }
             }
-            if (titleIndex !== -1){
-                homeData[21 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
-                homeData[21 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
-                homeData[21 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
-                homeData[21 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
+            if (titleIndex > -1){
+                homeData[18 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
+                homeData[18 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
+                homeData[18 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
+                homeData[18 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
             }else{
-                homeData[21 + i].show = 'false';
+                homeData[18 + i].show = 'false';
             }
         }
         this.props.navigator.replace({
@@ -465,6 +466,8 @@ class SplashScreen extends Component {
         PushNotification.localNotificationSchedule({
             message: 'Your Daily Verse is here...',
             vibrate: true,
+            largeIcon: "ic_notification",//default: "ic_launcher"
+            smallIcon: "ic_notification",
             soundName: 'plink.mp3',
             //repeatType: 'day',//can be 'time', if so use following:
             repeatTime: 86400000,//daily
@@ -477,7 +480,7 @@ class SplashScreen extends Component {
     render() {
 		return(
 			<View style={ splash_styles.container }>
-				<Image style={{ width: normalize(height*.35), height: normalize(height*.17) }} source={require('../images/logo.png')} />
+				<Image style={ splash_styles.image } source={require('../images/logo.png')} />
 				<ActivityIndicator style={splash_styles.spinner} animating={true} size={'large'}/>
 			</View>
 		)
@@ -497,6 +500,11 @@ const splash_styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
+    },
+    image: {
+        width: normalize(height*.35),
+        height: normalize(height*.17),
+        marginBottom: 20
     }
 });
 
