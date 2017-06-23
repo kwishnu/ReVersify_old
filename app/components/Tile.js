@@ -108,7 +108,7 @@ class Tile extends Component {
     }
     inDropZone(gesture) {
         var isDropZone = false;
-            if (gesture.moveY < 250 && gesture.moveY != 0) {
+            if (gesture.moveY < height*.37 && gesture.moveY != 0) {
             isDropZone = true;
             }
         return isDropZone;
