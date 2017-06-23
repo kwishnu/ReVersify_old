@@ -98,7 +98,7 @@ module.exports = class Settings extends Component {
                         </View>
                     </View>
                     <Text style={about_styles.mediumPrint}>{'If you enjoy our app, please take a moment to rate us in the store via the button below!'}</Text>
-                    <Button style={about_styles.rate_rate_button} onPress={() => this.rateApp()}>
+                    <Button style={about_styles.rate_button} onPress={() => this.rateApp()}>
                         <Text style={about_styles.sure}>Sure!</Text>
                     </Button>
                 </View>
