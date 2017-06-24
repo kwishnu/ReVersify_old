@@ -9,7 +9,7 @@ const {width, height} = require('Dimensions').get('window');
 const KEY_ratedTheApp = 'ratedApp';
 let year = moment().year();
 
-module.exports = class Settings extends Component {
+module.exports = class About extends Component {
     constructor(props) {
         super(props);
         this.state = {
