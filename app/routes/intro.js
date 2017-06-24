@@ -15,6 +15,7 @@ const KEY_MyHints = 'myHintsKey';
 const KEY_Premium = 'premiumOrNot';
 const KEY_InfinteHints = 'infHintKey';
 const KEY_PlayFirst = 'playFirstKey';
+const KEY_ShowVerse = 'showVerseKey';
 const KEY_ratedTheApp = 'ratedApp';
 const KEY_expandInfo = 'expandInfoKey';
 const KEY_Solved = 'numSolvedKey';
@@ -41,6 +42,7 @@ class Intro extends Component {
                 [KEY_Premium, 'false'],
                 [KEY_InfinteHints, 'false'],
                 [KEY_PlayFirst, 'false'],
+                [KEY_ShowVerse, 'false'],
                 [KEY_ratedTheApp, 'false'],
                 [KEY_expandInfo, '1.1'],
                 [KEY_Solved, '0'],
