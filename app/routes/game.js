@@ -18,6 +18,7 @@ const KEY_MyHints = 'myHintsKey';
 //const KEY_Premium = 'premiumOrNot';
 const KEY_InfinteHints = 'infHintKey';
 const KEY_PlayFirst = 'playFirstKey';
+const KEY_ShowVerse = 'showVerseKey';
 let dsArray = [];
 let homeData = {};
 let Sound = require('react-native-sound');
@@ -233,6 +234,15 @@ class Game extends Component {
 //        }).then((prem) => {
 //            let premiumBool = (prem == 'true')?true:false;
 //            if (premiumBool)this.setState({hasPremium: play });
+            return AsyncStorage.getItem(KEY_ShowVerse);
+        }).then((show) => {
+            if (show == 'true' || this.props.fromWhere == 'favorites'){
+                this.setState({panelText:  chapterVerse,
+                                           panelBgColor: '#555555',
+                                           panelBorderColor: '#000000',
+                                           showingVerse: true
+                })
+            }
             return AsyncStorage.getItem(KEY_InfinteHints);
         }).then((infHintsStr) => {
             let infHints = (infHintsStr == 'true')?true:false;
