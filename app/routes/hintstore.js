@@ -54,13 +54,13 @@ module.exports = class HintStore extends Component {
 //            .then((details) => {
                 try {
                     this.props.navigator.pop({});
-                    this.props.navigator.replace({
-                        id: 'home',
-                        passProps: {
-                            destination: 'game',
-                            homeData: this.props.homeData,
-                        }
-                    });
+//                    this.props.navigator.replace({
+//                        id: 'home',
+//                        passProps: {
+//                            destination: this.props.fromWhere,
+//                            homeData: this.props.homeData,
+//                        }
+//                    });
                 } catch(err)  {
                     window.alert(err.message)
                     return true;
@@ -150,7 +150,7 @@ const hints_styles = StyleSheet.create({
         justifyContent: 'space-between',
         padding: 6,
         width: width,
-        backgroundColor: '#000000',
+        backgroundColor: '#2B0B30',
         marginBottom: 20
     },
     button: {
@@ -217,11 +217,5 @@ const hints_styles = StyleSheet.create({
         textAlign: 'center',
         lineHeight: height*.05
 
-    },
-    divider: {
-        height: StyleSheet.hairlineWidth,
-        width: width * 0.75,
-        backgroundColor: '#333333',
-        margin: 20,
     }
 });
