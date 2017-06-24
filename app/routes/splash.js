@@ -14,26 +14,23 @@ function shuffleArray(array) {
 }
 //var InAppBilling = require('react-native-billing');
 var seedData = require('../config/data');
-var seenStart = false;
-var ready = false;
 var nowISO = 0;
 var tonightMidnight = 0;
-const bonuses = [['10', 'Welcome +10', '5', '#620887'], ['50', 'Dedicated +50', '10', '#f4ce57'], ['100', 'Talented +100', '10', '#f2404c'], ['250', 'Skilled +250', '10', '#0817a2'], ['500', 'Seasoned +500', '20', '#6e097d'], ['1000', 'Expert +1000', '25', '#f5eaf6'], ['100000000000', 'TooMuch', '1', '#000000']];
+const bonuses = [['1000000', 'Thank You', '5', '#02d2a8'], ['10', 'Welcome +10', '5', '#620887'], ['50', 'Dedicated +50', '10', '#f4ce57'], ['100', 'Talented +100', '10', '#f2404c'], ['250', 'Skilled +250', '10', '#0817a2'], ['500', 'Seasoned +500', '20', '#6e097d'], ['1000', 'Expert +1000', '25', '#f5eaf6'], ['100000000000', 'TooMuch', '1', '#000000']];
 const KEY_Premium = 'premiumOrNot';
 const KEY_Verses = 'versesKey';
 const KEY_SeenStart = 'seenStartKey';
 const KEY_Notifs = 'notifsKey';
 const KEY_NotifTime = 'notifTimeKey';
-const KEY_Score = 'scoreKey';
+const KEY_Solved = 'numSolvedKey';
+const KEY_ratedTheApp = 'ratedApp';
 const KEY_NextBonus = 'bonusKey';
 const {width, height} = require('Dimensions').get('window');
 import { normalize }  from '../config/pixelRatio';
 //'ws://52.52.205.96:80/websocket'; <= Publications...publication AllData, collections dataA...dataZ; MeteorApp
 //'ws://10.0.0.207:3000/websocket'; <= localhost
 var METEOR_URL = 'ws://52.52.205.96:80/websocket';
-//var MongoClient = require('mongodb').MongoClient;
-//var assert = require('assert');
-//const url = "mongodb://52.52.205.96:27017/MeteorApp";
+
 
 class SplashScreen extends Component {
     constructor(props) {
@@ -75,8 +72,8 @@ class SplashScreen extends Component {
                         window.alert('AsyncStorage error: ' + error.message);
                     }
                 }
-                if (homeData.length > 25){//screen for bonus packs vs. purchased packs
-                    for (let chk=25; chk<homeData.length; chk++){
+                if (homeData.length > 22){//screen for bonus packs vs. purchased packs
+                    for (let chk=22; chk<homeData.length; chk++){
                         if (homeData[chk].product_id.indexOf('bonus') < 0){
                             homeData[17].show = 'false';//purchased something, gets access to last 30 daily verses rather than last 3 days
                             homeData[18].show = 'true';
@@ -90,8 +87,55 @@ class SplashScreen extends Component {
                                 getPurchased: getPurchasedBool,
                                 pData: homeData
                 });
-                return AsyncStorage.getItem(KEY_Notifs);
-            }).then((notifHour) => {//notification hour, zero if no notifications (from Settings)
+
+
+
+                return AsyncStorage.getItem(KEY_NextBonus);
+            }).then((nb) => {//get next bonus level, compare to current number solved, download bonus pack accordingly...
+                if (nb !== null){
+                    this.setState({nextBonus: nb});
+                }else{
+                    this.setState({nextBonus: '10'});
+                    try {
+                        AsyncStorage.setItem(KEY_NextBonus, '10');
+                    } catch (error) {
+                        window.alert('AsyncStorage error: ' + error.message);
+                    }
+                }
+
+                return AsyncStorage.getItem(KEY_Solved);
+            }).then((ns) => {//number solved
+                var solvNum = 0;
+                var strNextBonus = this.state.nextBonus;
+                var bonusScore = parseInt(strNextBonus);//send number so getPuzzlePack() knows this is a bonus pack
+                if (ns !== null){
+                    solvNum =  parseInt(ns, 10);
+                }else{
+                    try {
+                        AsyncStorage.setItem(KEY_Solved, '0');
+                    } catch (error) {
+                        window.alert('AsyncStorage error: ' + error.message);
+                    }
+                }
+                if (solvNum >= bonusScore){
+                    const bID = 'bonus.' + strNextBonus;
+                    for (let getNext=0; getNext<bonuses.length; getNext++){
+                        if (bonuses[getNext][0] == strNextBonus){
+                            const nextToSet = bonuses[getNext + 1][0];//ignoring index-out-of-bounds possibility as top bonus is set at 100,000,000,000...
+                            try {
+                                AsyncStorage.setItem(KEY_NextBonus, nextToSet);
+                            } catch (error) {
+                                window.alert('AsyncStorage error: ' + error.message);
+                            }
+                        }
+                    }
+                    return this.getPuzzlePack(bonusScore, bID, this.state.pData);
+                }else{
+                    return false;
+                }
+            }).then((pArray) => {
+                if (pArray)this.setState({pData: pArray});
+                return AsyncStorage.getItem(KEY_Notifs);            }).then((notifHour) => {//notification hour, zero if no notifications (from Settings)
                     if (notifHour !== null) {
                         this.setNotifications(notifHour);
                     }else{
@@ -174,7 +218,7 @@ class SplashScreen extends Component {
                                         break;
                                     default:
                                 }
-                                promises.push(this.getPuzzlePack(packTitle, ownedPacks[goThroughOwned], this.state.pData));
+                                promises.push(this.getCollection(packTitle, ownedPacks[goThroughOwned], this.state.pData));
                             }else if (idArray && idArray.length == 5){//combo pack
                                 var packTitleArray = [];
                                 for (var m=0; m<3; m++){
@@ -195,7 +239,7 @@ class SplashScreen extends Component {
                                     }
                                     packTitleArray.push(packTitle)
                                 }
-                                promises.push(this.getPuzzlePack(packTitleArray, ownedPacks[goThroughOwned], this.state.pData));
+                                promises.push(this.getCollection(packTitleArray, ownedPacks[goThroughOwned], this.state.pData));
                             }else{
                                 console.log('Unknown Product: ', ownedPacks[goThroughOwned]);
                             }
@@ -209,7 +253,7 @@ class SplashScreen extends Component {
             }).catch(function(error) {
                 window.alert('splash 200: ' + error.message);
             });
-        }else{//purchased puzzle pack...
+        }else{//purchased verse pack...
             this.setState({hasPremium: 'true'});
             try {
                 AsyncStorage.setItem(KEY_Premium, 'true');//
@@ -381,8 +425,6 @@ class SplashScreen extends Component {
                         }
                     }
                     var arr = new Array(parseInt(num_verses)).fill(0);
-                    solved = arr;
-
                     const subs = Meteor.subscribe('AllData', {
                         onReady: function () {
                             const d_verses = Meteor.collection('dataP').find({pack: strName});
@@ -401,7 +443,7 @@ class SplashScreen extends Component {
                                 show: 'true',
                                 num_verses: num_verses,
                                 num_solved: '0',
-                                solved: solved,
+                                solved: arr,
                                 product_id: ID,
                                 bg_color: bg_color,
                                 verses: verses
@@ -432,14 +474,14 @@ class SplashScreen extends Component {
             for (var r=0; r<rnd.length; r++){
                 if (myPackArray.indexOf(homeData[levels[i]].data[rnd[r]].name) < 0){
                     titleIndex = rnd[r];
-                    myPackArray.push(homeData[r].title);
+                    myPackArray.push(homeData[levels[i]].data[rnd[r]].name);
                     break;
                 }
             }
             if (titleIndex > -1){
                 homeData[18 + i].title = '*' + homeData[levels[i]].data[titleIndex].name;
                 homeData[18 + i].product_id = homeData[levels[i]].data[titleIndex].product_id;
-                homeData[18 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
+//                homeData[18 + i].num_verses = homeData[levels[i]].data[titleIndex].num_verses;
                 homeData[18 + i].bg_color = homeData[levels[i]].data[titleIndex].color;
             }else{
                 homeData[18 + i].show = 'false';
@@ -464,7 +506,7 @@ class SplashScreen extends Component {
         var tomorrowAM = new Date(Date.now() + (moment(tonightMidnight).add(parseInt(time, 10), 'hours').valueOf()) - nowISO);
 
         PushNotification.localNotificationSchedule({
-            message: 'Your Daily Verse is here...',
+            message: 'Your Verse of the Day is here...',
             vibrate: true,
             largeIcon: "ic_notification",//default: "ic_launcher"
             smallIcon: "ic_notification",
