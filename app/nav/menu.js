@@ -23,7 +23,7 @@ module.exports = class Menu extends Component {
         };
     }
     formatData(data) {
-        const headings = 'reVersify*Donate*Social Media*About reVersify'.split('*');
+        const headings = 'reVersify*Verses & Hints*Social Media*About reVersify'.split('*');
         const keys = 'home*donate*social*about'.split('*');
         const dataBlob = {};
         const sectionIds = [];
