@@ -395,7 +395,7 @@ class Favorites extends Component{
     }
     getText(verseStr){
         let arr = verseStr.split('**');
-        return arr[1];
+        return arr[2];
     }
     goToDaily(index){
         let sArray = [];
@@ -430,12 +430,11 @@ class Favorites extends Component{
             id: 'game',
             passProps: {
                 homeData: this.state.homeData,
-                title: arr[1],
+                title: '',
                 index: index,
-                fromWhere: 'collection',
+                fromWhere: 'favorites',
                 daily_solvedArray: this.props.daily_solvedArray,
-                dataElement: '20',
-                isPremium: this.props.isPremium,
+                dataElement: '17',
                 bgColor: newColor,
                 myTitle: this.props.title,
                 fromWhere: 'favorites'
