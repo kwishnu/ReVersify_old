@@ -403,7 +403,8 @@ class Collection extends Component{
             });
         });
     }
-    onSelect(index) {
+    onSelect(strIndex) {
+        let index = parseInt(strIndex);
         let bgC = this.props.bgColor;
         let newColor = (bgC == '#000000')? '#cfe7c2':this.props.bgColor;
         if(index>parseInt(this.props.homeData[this.props.dataElement].num_solved, 10))return;
@@ -458,7 +459,7 @@ class Collection extends Component{
                                              <TouchableHighlight onPress={() => this.onSelect(rowData)}
                                                                  underlayColor={() => this.getUnderlay(rowData)}
                                                                  style={[collection_styles.launcher, this.getBorder(rowData), this.bg(rowData)]} >
-                                                 <Text style={ styles.verse_text_large }>{rowData + 1}</Text>
+                                                 <Text style={ styles.verse_text_large }>{String(rowData + 1)}</Text>
                                              </TouchableHighlight>
                                          </View>}
                              />
