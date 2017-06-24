@@ -44,47 +44,47 @@ invertColor = (hex,bw)  => {
     return "#" + padZero(r) + padZero(g) + padZero(b);
 }
 shadeColor = (color, percent) => {
-        let R = parseInt(color.substring(1,3),16);
-        let G = parseInt(color.substring(3,5),16);
-        let B = parseInt(color.substring(5,7),16);
+    let R = parseInt(color.substring(1,3),16);
+    let G = parseInt(color.substring(3,5),16);
+    let B = parseInt(color.substring(5,7),16);
 
-        R = parseInt(R * (100 + percent) / 100);
-        G = parseInt(G * (100 + percent) / 100);
-        B = parseInt(B * (100 + percent) / 100);
+    R = parseInt(R * (100 + percent) / 100);
+    G = parseInt(G * (100 + percent) / 100);
+    B = parseInt(B * (100 + percent) / 100);
 
-        R = (R<255)?R:255;
-        G = (G<255)?G:255;
-        B = (B<255)?B:255;
+    R = (R<255)?R:255;
+    G = (G<255)?G:255;
+    B = (B<255)?B:255;
 
-        let RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
-        let GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
-        let BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+    let RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
+    let GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
+    let BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
 
-        return '#'+RR+GG+BB;
+    return '#'+RR+GG+BB;
 }
 formatData = (data) => {
-        const headings = 'Daily Verses*My Verse Collections*Available Collections*Completed Collections'.split('*');
-        const keys = 'daily*mypack*forsale*solved'.split('*');
-        const dataBlob = {};
-        const sectionIds = [];
-        const rowIds = [];
-        for (let sectionId = 0; sectionId < headings.length; sectionId++) {
-            const currentHead = headings[sectionId];
-            const currentKey = keys[sectionId];
-            const packs = data.filter((theData) => theData.type == currentKey && theData.show == 'true');
-            if (packs.length > 0) {
-                sectionIds.push(sectionId);
-                dataBlob[sectionId] = { sectionTitle: currentHead };
-                rowIds.push([]);
-                for (let i = 0; i < packs.length; i++) {
-                    const rowId = `${sectionId}:${i}`;
-                    rowIds[rowIds.length - 1].push(rowId);
-                    dataBlob[rowId] = packs[i];
-                }
+    const headings = 'Daily Verses*My Verses*Available Collections & Books*Completed'.split('*');
+    const keys = 'daily*mypack*forsale*solved'.split('*');
+    const dataBlob = {};
+    const sectionIds = [];
+    const rowIds = [];
+    for (let sectionId = 0; sectionId < headings.length; sectionId++) {
+        const currentHead = headings[sectionId];
+        const currentKey = keys[sectionId];
+        const packs = data.filter((theData) => theData.type == currentKey && theData.show == 'true');
+        if (packs.length > 0) {
+            sectionIds.push(sectionId);
+            dataBlob[sectionId] = { sectionTitle: currentHead };
+            rowIds.push([]);
+            for (let i = 0; i < packs.length; i++) {
+                const rowId = `${sectionId}:${i}`;
+                rowIds[rowIds.length - 1].push(rowId);
+                dataBlob[rowId] = packs[i];
             }
         }
-        return { dataBlob, sectionIds, rowIds };
     }
+    return { dataBlob, sectionIds, rowIds };
+}
 //let InAppBilling = require("react-native-billing");
 //let Orientation = require('react-native-orientation');
 let SideMenu = require('react-native-side-menu');
@@ -297,78 +297,53 @@ class Home extends Component{
         }
     }
     onMenuItemSelected = (item) => {
+            var index = parseInt(item.index);
             var myPackArray = [];
             var keepInList = [];
             switch (item.link){
-                case 'verses':
+                case 'home':
                     this.toggle();
                     break;
-                case 'game':
-                    this.onSelect('16','Today\'s Verse', null);
-                    break;
-                case 'daily':
-                    if(this.props.isPremium == 'true'){
-                        this.onSelect('18','Last Thirty Days', null);
-                    }else{
-                        this.onSelect('17','Last Three Days', null);
-                    }
-                    break;
-                case 'app_intro':
+                case 'intro':
                     this.props.navigator.push({
                         id: 'intro',
                         passProps: {
                             destination: 'menu',
-                            homeData: homeData,
+                            homeData: this.state.homeData,
                             introIndex: 1,
                             seenIntro: 'true'
                         }
                     });
                     break;
                 case 'store':
-                    for (var j=0; j<homeData.length; j++){
-                        if (homeData[j].type == 'mypack'){
-                            myPackArray.push(homeData[j].title);
+                    if (item.title == 'Hint Packages'){
+                        this.props.navigator.push({
+                            id: 'hints',
+                            passProps: {
+                                destination: 'home',
+                                homeData: this.state.homeData,
+                            }
+                        });
+                        return;
+                    }
+                    for (var j=0; j<this.state.homeData.length; j++){
+                        if (this.state.homeData[j].type == 'mypack'){
+                            myPackArray.push(this.state.homeData[j].title);
                         }
                     }
-                    for (var i=homeData[item.index].data.length - 1; i>=0; i--){
-                        if(myPackArray.indexOf(homeData[item.index].data[i].name) < 0){
-                            keepInList.push(homeData[item.index].data[i]);
+                    for (var i=this.state.homeData[index].data.length - 1; i>=0; i--){
+                        if(myPackArray.indexOf(this.state.homeData[index].data[i].name) < 0){
+                            keepInList.unshift(this.state.homeData[index].data[i]);
                         }
                     }
-                    keepInList = shuffleArray(keepInList);
+                    if (index == 5)keepInList = shuffleArray(keepInList);
                     this.props.navigator.push({
                         id: 'store',
                         passProps: {
-                            dataIndex: item.index,
-                            title: item.title + ' Verse Packs',
+                            dataIndex: index,
+                            title: item.title,
                             availableList: keepInList,
-                            homeData: homeData,
-                        }
-                    });
-                    break;
-                case 'store3':
-                    if(homeData[item.index].data.length == 0){
-                        Alert.alert('Coming soon...', 'Sorry, no combo packs available yet; please check back!');
-                        return;
-                    }
-                    keepInList = homeData[item.index].data;
-                    for (var j=0; j<homeData.length; j++){
-                        if (homeData[j].type == 'mypack'){
-                            myPackArray.push(homeData[j].title);
-                        }
-                    }
-                    for (var i=homeData[item.index].data.length - 1; i>=0; i--){
-                        if((myPackArray.indexOf(homeData[item.index].data[i].name[0]) > -1) && (myPackArray.indexOf(homeData[item.index].data[i].name[1]) > -1) && (myPackArray.indexOf(homeData[item.index].data[i].name[2]) > -1)){
-                            keepInList.splice(i, 1);
-                        }
-                    }
-                    this.props.navigator.push({
-                        id: 'combo store',
-                        passProps: {
-                            dataIndex: item.index,
-                            title: item.title + ' Value Packs',
-                            availableList: keepInList,
-                            homeData: homeData,
+                            homeData: this.state.homeData,
                         }
                     });
                     break;
@@ -378,7 +353,7 @@ class Home extends Component{
                         passProps: {
                             which: 'FB',
                             color: '#3b5998',
-                            homeData: homeData,
+                            homeData: this.state.homeData,
                         }
                     });
                     break;
@@ -388,23 +363,15 @@ class Home extends Component{
                         passProps: {
                             which: 'TW',
                             color: '#1da1f2',
-                            homeData: homeData,
+                            homeData: this.state.homeData,
                         }
                     });
                     break;
-                case 'settings':
+                case 'settings': case 'about': case 'mission':
                     this.props.navigator.push({
-                        id: 'settings',
+                        id: item.link,
                         passProps: {
-                            homeData: homeData,
-                        }
-                    });
-                    break;
-                case 'about':
-                    this.props.navigator.push({
-                        id: 'about',
-                        passProps: {
-                            homeData: homeData,
+                            homeData: this.state.homeData,
                         }
                     });
                     break;
@@ -444,17 +411,75 @@ class Home extends Component{
             color: strToReturn,
         };
     }
-    getTitle(title, numVerses, index){
-        let appendNum = (parseInt(index, 10) > 19)?'  ' + numVerses:'';
+    getTitle(title){
+//        let appendNum = (parseInt(index, 10) > 19)?'  ' + numVerses:'';
         let titleToReturn = (title.indexOf('*') > -1)?title.substring(1):title;
-        titleToReturn = titleToReturn + appendNum;
+//        titleToReturn = titleToReturn + appendNum;
         return titleToReturn;
     }
     onSelect(index, title, bg, productID) {
+        if (title.indexOf('*') > -1){
+            let theName = title.substring(1);
+            let myPackArray = [];
+            let keepInList = [];
+            let theIndex = '';
+            let theTitle = '';
+            let gotIt = false;
+            let itemIndex = 0;
+            for (var j=0; j<this.state.homeData.length; j++){
+                if (this.state.homeData[j].type == 'mypack'){
+                    myPackArray.push(this.state.homeData[j].title);
+                }
+                if (!gotIt && this.state.homeData[j].link == 'store'){
+                    for (var k=0; k<this.state.homeData[j].data.length; k++){
+                        if(this.state.homeData[j].data[k].name == theName){
+                            theIndex = this.state.homeData[j].index;
+                            gotIt = true;
+                            continue;
+                        }
+                    }
+                }
+            }
+            switch(theIndex){
+                case '5':
+                    theTitle = 'Verse Collections';
+                    break;
+                case '6':
+                    theTitle = 'Old Testament';
+                    break;
+                case '7':
+                    theTitle = 'New Testament';
+                    break;
+            }
 
-        //send to stores
+            for (var i=this.state.homeData[parseInt(theIndex, 10)].data.length - 1; i>=0; i--){
+                if(myPackArray.indexOf(this.state.homeData[parseInt(theIndex, 10)].data[i].name) < 0){
+                    keepInList.unshift(this.state.homeData[parseInt(theIndex, 10)].data[i]);
+                }
+            }
+            var putMeBack = null;
+            for(var whatsLeft = 0; whatsLeft<keepInList.length; whatsLeft++){
+                if(keepInList[whatsLeft].name == theName){
+                    putMeBack = keepInList.splice(whatsLeft, 1);
+                    continue;
+                }
+            }
+            if (theTitle == 'Verse Collections')keepInList = shuffleArray(keepInList);
+            keepInList.unshift(putMeBack[0]);
+            this.props.navigator.push({
+                id: 'store',
+                passProps: {
+                    dataIndex: theIndex,
+                    title: theTitle,
+                    availableList: keepInList,
+                    homeData: this.state.homeData,
+                }
+            });
+            this.toggle();
+            return;
+        }
 
-        if (index == '20'){//favorites
+        if (index == '17'){//favorites
             let verseArray = [];
             for (let v=0; v< this.state.homeData[17].verses.length; v++){
                 verseArray.push(v + '**' + this.state.homeData[17].verses[v]);
@@ -479,7 +504,7 @@ class Home extends Component{
         let bgColorToSend = '';
 
         switch(title){
-            case 'Today\'s Verse':
+            case 'Verse of the Day':
                 theDestination = 'game';
                 this.props.navigator.replace({
                     id: theDestination,
@@ -527,6 +552,9 @@ class Home extends Component{
                 }
             }
             bgColorToSend = (useColors == 'true')?bg:'#cfe7c2';
+
+            console.log(JSON.stringify(this.state.homeData[index]));
+
             this.props.navigator.replace({
                 id: theDestination,
                 passProps: {
@@ -542,7 +570,7 @@ class Home extends Component{
         });
     }
     showDialog(index, type){
-        if(index < 19 || index == 17)return;
+        if(index < 16)return;// || index == 17
         Vibration.vibrate(25);
         BackAndroid.addEventListener('hardwareBackPress', this.handleHardwareBackButton);
         if(type == 'mypack' || type == 'solved'){
@@ -593,7 +621,7 @@ class Home extends Component{
                 this.state.homeData[this.state.indexSelected].show = 'false';
                 break;
             case 4:
-                for (let showVerses=19; showVerses<this.state.homeData.length; showVerses++){
+                for (let showVerses=16; showVerses<this.state.homeData.length; showVerses++){
                     this.state.homeData[showVerses].show = 'true';
                 }
                 break;
@@ -643,7 +671,7 @@ class Home extends Component{
                                                                      onLongPress={()=> this.showDialog(rowData.index, rowData.type)}
                                                                      style={[container_styles.launcher, this.bg(rowData.bg_color), this.lightBorder(rowData.bg_color, rowData.type)]}
                                                                      underlayColor={rowData.bg_color} >
-                                                     <Text style={[container_styles.launcher_text, this.getTextColor(rowData.bg_color, rowData.index)]}>{this.getTitle(rowData.title, rowData.num_verses, rowData.index)}</Text>
+                                                     <Text style={[container_styles.launcher_text, this.getTextColor(rowData.bg_color, rowData.index)]}>{this.getTitle(rowData.title)}</Text>
                                                  </TouchableHighlight>
                                              </View>
                                          }
