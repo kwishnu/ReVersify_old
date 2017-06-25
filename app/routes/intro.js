@@ -44,7 +44,7 @@ class Intro extends Component {
                 [KEY_PlayFirst, 'false'],
                 [KEY_ShowVerse, 'false'],
                 [KEY_ratedTheApp, 'false'],
-                [KEY_expandInfo, '1.1'],
+                [KEY_expandInfo, '1.1.1'],
                 [KEY_Solved, '0'],
                 [KEY_show_score, '1']
             ];
