@@ -52,6 +52,11 @@ module.exports = class HintStore extends Component {
 //            InAppBilling.open()
 //            .then(() => InAppBilling.purchase(itemID))
 //            .then((details) => {
+//                try {
+//                    AsyncStorage.setItem(KEY_Premium, 'true');//
+//                } catch (error) {
+//                    window.alert('AsyncStorage error: ' + error.message);
+//                }
                 try {
                     this.props.navigator.pop({});
 //                    this.props.navigator.replace({
@@ -59,6 +64,7 @@ module.exports = class HintStore extends Component {
 //                        passProps: {
 //                            destination: this.props.fromWhere,
 //                            homeData: this.props.homeData,
+//                            isPremium: 'true'
 //                        }
 //                    });
                 } catch(err)  {

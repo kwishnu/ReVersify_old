@@ -12,6 +12,7 @@ const {width, height} = require('Dimensions').get('window');
 const KEY_Sound = 'soundKey';
 const KEY_Verses = 'versesKey';
 const KEY_solvedTP = 'solvedTP';
+const KEY_Solved = 'numSolvedKey';
 const KEY_daily_solved_array = 'solved_array';
 const KEY_Time = 'timeKey';
 const KEY_MyHints = 'myHintsKey';
@@ -676,10 +677,11 @@ class Game extends Component {
         }
         try {
             AsyncStorage.setItem(KEY_daily_solved_array, JSON.stringify(dsArray));
+//            AsyncStorage.setItem(KEY_daily_solved_array, JSON.stringify(dsArray));
         } catch (error) {
             window.alert('AsyncStorage error: ' + error.message);
         }
-        if(this.props.fromWhere == 'home'){
+        if(this.props.fromWhere == 'home'){//solved Verse of the Day
             try {
                 AsyncStorage.setItem(KEY_solvedTP, 'true');
             } catch (error) {

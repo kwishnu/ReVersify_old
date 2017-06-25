@@ -16,7 +16,7 @@ function shuffleArray(array) {
 var seedData = require('../config/data');
 var nowISO = 0;
 var tonightMidnight = 0;
-const bonuses = [['1000000', 'Thank You', '5', '#02d2a8'], ['10', 'Welcome +10', '5', '#620887'], ['50', 'Dedicated +50', '10', '#f4ce57'], ['100', 'Talented +100', '10', '#f2404c'], ['250', 'Skilled +250', '10', '#0817a2'], ['500', 'Seasoned +500', '20', '#6e097d'], ['1000', 'Expert +1000', '25', '#f5eaf6'], ['100000000000', 'TooMuch', '1', '#000000']];
+const bonuses = [['10', 'Welcome +10', '5', '#620887'], ['50', 'Dedicated +50', '10', '#f4ce57'], ['100', 'Talented +100', '10', '#f2404c'], ['250', 'Skilled +250', '10', '#0817a2'], ['500', 'Seasoned +500', '20', '#6e097d'], ['1000', 'Expert +1000', '25', '#f5eaf6'], ['100000000000', 'TooMuch', '1', '#000000']];
 const KEY_Premium = 'premiumOrNot';
 const KEY_Verses = 'versesKey';
 const KEY_SeenStart = 'seenStartKey';
