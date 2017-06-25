@@ -91,7 +91,7 @@ module.exports = class Mission extends Component {
                         </Text>
                     </View>
                         <View style={about_styles.divider}/>
-                    <Text style={about_styles.mediumPrint}>{`Ratings are important! They not only give us valuable feedback about our app, they promote awareness of the app to the wider world as well...please help us by taking a moment to give a rating in the app store via the button below, and we'll thank you with a bonus Verse Collection!`}</Text>
+                    <Text style={about_styles.mediumPrint}>{`Ratings are important! They not only give us valuable feedback about our app, they promote awareness of the app to the wider world as well...please help us by rating us in the app store via the button below, and we'll thank you with a special Game setting!`}</Text>
                     <Button style={about_styles.rate_button} onPress={() => this.rateApp()}>
                         <Text style={about_styles.sure}>Sure!</Text>
                     </Button>
