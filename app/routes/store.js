@@ -67,21 +67,13 @@ module.exports = class Store extends Component {
                 let expandArr = strExpand.split('.');
                 let tf = false;
                 switch(this.props.dataIndex){
-                    case '3':
+                    case 5:
                         tf = (expandArr[0] == '1')?true:false;
-                        this.setState({expand: tf, infoString: '\'Easy\' puzzles have answers that always begin with the Key fragment'});
+                        this.setState({expand: tf, infoString: `All Verse Collections contain 100 Verse Puzzles and are priced $0.99USD. A portion of the proceeds raised by the app will be donated to the WEB project of World Outreach Ministries.`});
                         break;
-                    case '4':
+                    case 6: case 7:
                         tf = (expandArr[1] == '1')?true:false;
-                        this.setState({expand: tf, infoString: '\'Moderate\' puzzles always have the Key fragment somewhere in their answers'});
-                        break;
-                    case '5':
-                        tf = (expandArr[2] == '1')?true:false;
-                        this.setState({expand: tf, infoString: '\'Hard\' puzzles may or may not have the Key fragment in their answers'});
-                        break;
-                    case '6':
-                        tf = (expandArr[3] == '1')?true:false;
-                        this.setState({expand: tf, infoString: '\'Theme\' puzzles may or may not have the Key fragment in their answers'});
+                        this.setState({expand: tf, infoString: `All Bible Books are priced $0.99USD and may be accessed by Chapter and Verse. A portion of the proceeds raised by the app will be donated to the WEB project of World Outreach Ministries.`});
                         break;
                 }
             }
@@ -111,17 +103,11 @@ module.exports = class Store extends Component {
             let expArr = strExpand.split('.');
             let ind = 0;
             switch(this.props.dataIndex){
-                case '3':
+                case 5:
                     ind = 0;
                     break;
-                case '4':
+                case 6: case 7:
                     ind = 1;
-                    break;
-                case '5':
-                    ind = 2;
-                    break;
-                case '6':
-                    ind = 3;
                     break;
             }
             if(expArr[ind] == '1'){
@@ -138,33 +124,33 @@ module.exports = class Store extends Component {
     }
 
     render() {
-       const rows = this.dataSource.cloneWithRows(this.props.availableList);
-       if(this.state.expand){
+        const rows = this.dataSource.cloneWithRows(this.props.availableList);
+        if(this.state.expand){
             return (
                 <View style={store_styles.container}>
                     <View style={ store_styles.header }>
-                        <Button style={{left: height*.02}} onPress={ () => this.handleHardwareBackButton() }>
+                        <Button style={store_styles.button} onPress={ () => this.handleHardwareBackButton() }>
                             <Image source={ require('../images/arrowback.png') } style={ { width: normalize(height*.07), height: normalize(height*.07) } } />
                         </Button>
                         <Text style={styles.header_text} >{this.props.title}
                         </Text>
-                        <Button style={{right: height*.02}}>
+                        <Button style={store_styles.button}>
                             <Image source={ require('../images/noimage.png') } style={ { width: normalize(height*.07), height: normalize(height*.07) } } />
                         </Button>
                     </View>
                     <View style={store_styles.listview_container}>
-                        <View style={[ store_styles.infoBox, {flex: 3} ]}>
+                        <View style={[ store_styles.infoBox, {flex: 5} ]}>
                             <View style={ store_styles.text_container }>
                                 <Text style={store_styles.info_text} >{this.state.infoString}</Text>
                             </View>
                             <View style={ store_styles.button_container }>
-                                <Button style={ store_styles.button } onPress={ () => this.toggleInfoBox(this.state.expand) }>
+                                <Button style={ store_styles.gotit_button } onPress={ () => this.toggleInfoBox(this.state.expand) }>
                                         <Text style={[store_styles.button_text, {color: 'red'}]}> X   </Text>
                                         <Text style={[store_styles.button_text, {color: '#ffffff'}]} > Got it!</Text>
                                 </Button>
                             </View>
                         </View>
-                        <View style={{flex: 10}}>
+                        <View style={{flex: 8}}>
                             <ListView  showsVerticalScrollIndicator ={false}
                                     contentContainerStyle={ store_styles.listview }
                                     dataSource={rows}
@@ -178,11 +164,11 @@ module.exports = class Store extends Component {
             return (
                 <View style={store_styles.container}>
                     <View style={ store_styles.header }>
-                        <Button style={{left: height*.02}} onPress={ () => this.handleHardwareBackButton() }>
+                        <Button style={store_styles.button} onPress={ () => this.handleHardwareBackButton() }>
                             <Image source={ require('../images/arrowback.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                         </Button>
                         <Text style={styles.header_text} >{this.props.title}</Text>
-                        <Button style={{right: height*.02}} onPress={ () => this.toggleInfoBox() }>
+                        <Button style={store_styles.button} onPress={ () => this.toggleInfoBox() }>
                             <Image source={ require('../images/infoquestion.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
                         </Button>
                     </View>
@@ -258,14 +244,18 @@ const store_styles = StyleSheet.create({
         backgroundColor: '#2B0B30',
     },
     button: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: normalize(height*0.077),
+        height: normalize(height*0.077)
+    },
+    gotit_button: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#666666',
-        paddingTop: 15,
-        paddingBottom: 15,
-        paddingLeft: 8,
-        paddingRight: 8,
+        width: height*.18,
+        height: height*.06,
     },
     button_text: {
         fontSize: configs.LETTER_SIZE * .6,
@@ -283,7 +273,7 @@ const store_styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 6,
-        width: width * .8,
+        width: width * .9,
         backgroundColor: '#ffffff',
         borderWidth: 2,
         borderColor: '#333333',

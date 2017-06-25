@@ -4,7 +4,7 @@ import moment from 'moment';
 import Button from '../components/Button';
 import Dialog from '../components/Dialog';
 import configs from '../config/configs';
-import { normalize }  from '../config/pixelRatio';
+import { normalize, normalizeFont }  from '../config/pixelRatio';
 shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1));
@@ -58,6 +58,7 @@ const BORDER_RADIUS = CELL_PADDING * .2 + 3;
 const KEY_daily_solved_array = 'solved_array';
 const KEY_Time = 'timeKey';
 const KEY_Verses = 'versesKey';
+const KEY_expandInfo = 'expandInfoKey';
 
 
 class Favorites extends Component{
@@ -79,11 +80,28 @@ class Favorites extends Component{
             titleColor: '',
             isLoading: true,
             shouldShowDialog: false,
-            selected: ''
+            selected: '',
+            isPremium: 'true',//this.props.isPremium,
+            questionOpacity: 1
         };
         this.handleHardwareBackButton = this.handleHardwareBackButton.bind(this);
     }
     componentDidMount() {
+        if (this.props.isPremium == 'true'){
+            this.setState({questionOpacity: 0, expand: false});
+        }else{
+            AsyncStorage.getItem(KEY_expandInfo).then((strExpand) => {
+                if(strExpand){
+                    let expandArr = strExpand.split('.');
+                    let tf = 0;
+                    tf = (expandArr[2] == '1')?1:0;
+                    this.setState({questionOpacity: tf, expand: tf, infoString: `Storage of Favorites is limited to 3 Verses unless any item has been purchased in the app. A portion of the proceeds raised by the app will be donated to the WEB project of World Outreach Ministries.`});
+                }
+            });
+        }
+
+
+
         homeData = this.state.homeData;
         this.setColors();
         AppState.addEventListener('change', this.handleAppStateChange);
@@ -437,7 +455,8 @@ class Favorites extends Component{
                 dataElement: '17',
                 bgColor: newColor,
                 myTitle: this.props.title,
-                fromWhere: 'favorites'
+                fromWhere: 'favorites',
+                expand: true
             },
        });
     }
@@ -492,6 +511,21 @@ class Favorites extends Component{
         }
 
     }
+    toggleInfoBox(bool){
+        if (this.props.isPremium == 'true')return;
+        this.setState({expand: !bool});
+        AsyncStorage.getItem(KEY_expandInfo).then((strExpand) => {
+            let expArr = strExpand.split('.');
+            expArr[2] = '0';
+            let reglue = expArr.join('.');
+            try {
+                AsyncStorage.setItem(KEY_expandInfo, reglue);//
+            } catch (error) {
+                window.alert('AsyncStorage error: ' + error.message);
+            }
+        });
+    }
+
 
     render() {
         const menu = <Menu onItemSelected={ this.onMenuItemSelected } data = {this.props.homeData} />;
@@ -503,6 +537,8 @@ class Favorites extends Component{
             )
         }else{
            const rows = this.dataSource.cloneWithRows(this.state.dataSource);
+           console.log(this.state.expand);
+        if(this.state.expand){
             return (
                 <SideMenu
                     menu={ menu }
@@ -520,21 +556,73 @@ class Favorites extends Component{
                             </Button>
                         </View>
                         <View style={ [collection_styles.tiles_container, {backgroundColor: this.state.bgColor}, this.darkBorder(this.state.bgColor)] }>
-                             <ListView  showsVerticalScrollIndicator ={false}
-                                        initialListSize ={100}
-                                        contentContainerStyle={ collection_styles.listview }
-                                        dataSource={rows}
-                                        renderRow={(rowData) =>
-                                         <View>
-                                             <TouchableHighlight onPress={() => this.onSelect(rowData)}
-                                                                 onLongPress={()=> this.showDialog(rowData)}
-                                                                 underlayColor={() => this.getUnderlay(rowData)}
-                                                                 style={collection_styles.launcher} >
-                                                 <Text style={ styles.verse_text_large }>{this.getText(rowData)}</Text>
-                                             </TouchableHighlight>
-                                         </View>}
-                             />
+                            <View style={[ collection_styles.infoBox, {flex: 5} ]}>
+                                <View style={ collection_styles.text_container }>
+                                    <Text style={collection_styles.info_text} >{this.state.infoString}</Text>
+                                </View>
+                                <View style={ collection_styles.button_container }>
+                                    <Button style={ collection_styles.gotit_button } onPress={ () => this.toggleInfoBox(this.state.expand) }>
+                                            <Text style={[collection_styles.button_text, {color: 'red'}]}> X   </Text>
+                                            <Text style={[collection_styles.button_text, {color: '#ffffff'}]} > Got it!</Text>
+                                    </Button>
+                                </View>
+                            </View>
+                            <View style={{flex: 8}}>
+                                <ListView  showsVerticalScrollIndicator ={false}
+                                    initialListSize ={100}
+                                    contentContainerStyle={ collection_styles.listview }
+                                    dataSource={rows}
+                                    renderRow={(rowData) =>
+                                     <View>
+                                         <TouchableHighlight onPress={() => this.onSelect(rowData)}
+                                                             onLongPress={()=> this.showDialog(rowData)}
+                                                             underlayColor={() => this.getUnderlay(rowData)}
+                                                             style={collection_styles.launcher} >
+                                             <Text style={ styles.verse_text_large }>{this.getText(rowData)}</Text>
+                                         </TouchableHighlight>
+                                     </View>}
+                                />
+                                </View>
+                            </View>
+                        {this.state.shouldShowDialog &&
+                                <Dialog showFull={false} onPress={(num)=>{ this.onDialogSelect(num); }} item4={'Remove from Favorites'} />
+                        }
+                     </View>
+                </SideMenu>
+            );
+        }else{
+            return (
+                <SideMenu
+                    menu={ menu }
+                    isOpen={ this.state.isOpen }
+                    onChange={ (isOpen) => this.updateMenuState(isOpen) }>
+
+                    <View style={ [collection_styles.container, {backgroundColor: this.state.bgColor}, this.darkBorder(this.state.bgColor)] }>
+                        <View style={ [collection_styles.header, {backgroundColor: this.state.headerColor}]}>
+                            <Button style={collection_styles.button} onPress={ () => this.handleHardwareBackButton() }>
+                                <Image source={ require('../images/arrowback.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07) } } />
+                            </Button>
+                            <Text style={{fontSize: configs.LETTER_SIZE * 0.7, color: this.state.titleColor}} >{this.props.title}</Text>
+                            <Button style={collection_styles.button} onPress={ () => this.toggleInfoBox() }>
+                                <Image source={ require('../images/infoquestion.png') } style={ { width: normalize(height*0.07), height: normalize(height*0.07), opacity: this.state.questionOpacity } } />
+                            </Button>
                         </View>
+                        <View style={ [collection_styles.tiles_container, {backgroundColor: this.state.bgColor}, this.darkBorder(this.state.bgColor)] }>
+                                <ListView  showsVerticalScrollIndicator ={false}
+                                    initialListSize ={100}
+                                    contentContainerStyle={ collection_styles.listview }
+                                    dataSource={rows}
+                                    renderRow={(rowData) =>
+                                     <View>
+                                         <TouchableHighlight onPress={() => this.onSelect(rowData)}
+                                                             onLongPress={()=> this.showDialog(rowData)}
+                                                             underlayColor={() => this.getUnderlay(rowData)}
+                                                             style={collection_styles.launcher} >
+                                             <Text style={ styles.verse_text_large }>{this.getText(rowData)}</Text>
+                                         </TouchableHighlight>
+                                     </View>}
+                                />
+                                </View>
                         {this.state.shouldShowDialog &&
                                 <Dialog showFull={false} onPress={(num)=>{ this.onDialogSelect(num); }} item4={'Remove from Favorites'} />
                         }
@@ -543,6 +631,7 @@ class Favorites extends Component{
             );
         }
     }
+}
 }
 
 
@@ -563,6 +652,50 @@ const collection_styles = StyleSheet.create({
         width: window.width,
         marginBottom: 6,
     },
+    gotit_button: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#666666',
+        width: height*.18,
+        height: height*.06,
+    },
+    button_text: {
+        fontSize: configs.LETTER_SIZE * .6,
+        fontWeight: 'bold',
+    },
+    infoBox: {
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 6,
+        width: width * .9,
+        backgroundColor: '#ffffff',
+        borderWidth: 2,
+        borderColor: '#333333',
+        marginTop: 16,
+        marginBottom: 10
+    },
+    text_container: {
+        flex: 3,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: width * 0.7,
+        backgroundColor: 'transparent',
+    },
+    button_container: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        width: width * 0.75,
+        backgroundColor: 'transparent',
+    },
+    info_text: {
+        fontSize: normalizeFont(configs.LETTER_SIZE * .085),
+        color: '#333333'
+    },
     button: {
         alignItems: 'center',
         justifyContent: 'center',
@@ -577,11 +710,12 @@ const collection_styles = StyleSheet.create({
     },
     tiles_container: {
         flex: 11,
-        paddingLeft: 6,
-        paddingRight: 6,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 6,
     },
     launcher: {
-        width: width*.98,
+        width: width*.96,
         height: TILE_WIDTH,
         borderRadius: BORDER_RADIUS,
         borderWidth: 1,
