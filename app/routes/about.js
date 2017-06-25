@@ -8,6 +8,7 @@ const styles = require('../styles/styles');
 const {width, height} = require('Dimensions').get('window');
 const KEY_ratedTheApp = 'ratedApp';
 let year = moment().year();
+//const KEY_expandInfo = 'expandInfoKey';
 
 module.exports = class About extends Component {
     constructor(props) {
@@ -51,6 +52,13 @@ module.exports = class About extends Component {
         return true;
     }
     rateApp(){
+//                        try {
+//                            AsyncStorage.setItem(KEY_expandInfo, '1.1.1');//
+//                        } catch (error) {
+//                            window.alert('AsyncStorage error: ' + error.message);
+//                        }
+//return;
+//
         NetInfo.isConnected.fetch().then(isConnected => {
             if (isConnected){
                 let storeUrl = Platform.OS === 'ios' ?
